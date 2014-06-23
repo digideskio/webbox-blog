@@ -8,9 +8,7 @@ permalink:        pretty
 # Setup
 title:            webBox
 tagline:          "the blog"
-description:      we are a group of people who love to contribute and 
-                  build open-source projects, modern web applications 
-                  with modern technologies and great developer conferences.
+description:      here, we reveal the secret sauce recipes inside the magical blue box.
 
 url:              http://blog.webbox.io
 baseurl:          /

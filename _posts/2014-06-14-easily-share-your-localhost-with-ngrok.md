@@ -1,3 +1,7 @@
+---
+title: Easily Share Your Localhost With Ngrok
+layout: post
+---
 Sometimes you want to show a prototype **Web Application** that is working on your
 computer to other people. The problem is that **Deployment** is **not** always 
 that easy.
@@ -29,7 +33,7 @@ ngrok 3000
 
 If it succeeds you’ll see something like below.
 
-![Ngrok](/assets/post_images/ngrok.png)
+![Ngrok]({{ site.baseurl }}assets/post_images/ngrok.png)
 
 Voila your app is on the internet and anyone can access it by using the HTTP 
 and HTTPS links that **Ngrok** generates :)

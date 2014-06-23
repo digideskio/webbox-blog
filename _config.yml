@@ -7,8 +7,11 @@ permalink:        pretty
 
 # Setup
 title:            webBox
-tagline:          "what's happening in the blue box?"
-description:      "the technical blog from <a href='http://twitter.com/webboxio'>@webBox</a>."
+tagline:          "the blog"
+description:      we are a group of people who love to contribute and 
+                  build open-source projects, modern web applications 
+                  with modern technologies and great developer conferences.
+
 url:              http://blog.webbox.io
 baseurl:          /
 

@@ -1,0 +1,22 @@
+# Dependencies
+kramdown:
+    input: GFM
+
+highlighter:      true
+
+# Permalinks
+permalink:        pretty
+
+# Setup
+title:            webBox
+tagline:          "what's happening in the blue box?"
+description:      "the technical blog from <a href='http://twitter.com/webboxio'>@webBox</a>."
+url:              http://blog.webbox.io
+baseurl:          /
+
+author:
+  name:           webBox Team
+  url:            https://twitter.com/webboxio
+
+paginate:         5
+

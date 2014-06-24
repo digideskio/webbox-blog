@@ -1,5 +1,5 @@
 # Dependencies
-exclude: [vendor]
+exclude:          [vendor, Rakefile, Gemfile]
 markdown:         redcarpet
 highlighter:      pygments
 
@@ -13,6 +13,8 @@ description:      here, we reveal the secret sauce recipes inside the magical bl
 
 url:              http://blog.webbox.io
 baseurl:          /
+
+excerpt_separator: "<!-- more -->"
 
 author:
   name:           webBox Team

@@ -344,12 +344,22 @@ tbody tr:nth-child(odd) th {
   margin-top: 0;
 }
 
+/* Post Abstract */
+.post-abstract {
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
 /* Meta data line below post title */
-.post-date {
+.post-meta {
   display: block;
   margin-top: -.5rem;
   margin-bottom: 1rem;
   color: #9a9a9a;
+}
+
+.post-writer {
+  font-size: 0.7rem;
 }
 
 /* Related posts */
@@ -428,3 +438,5 @@ a.pagination-item:hover {
     border-bottom-right-radius: 4px;
   }
 }
+
+

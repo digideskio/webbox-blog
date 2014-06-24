@@ -1,14 +1,22 @@
 ---
 title: Auto Resizing UITextView
 layout: post
----
+abstract: |
+  There are some techniques to resize `UITextView` with respect to the keyboard. 
+  I'll tell you one of these techniques.
 
-There are some techniques to resize UITextView with respect to the keyboard.
+writer:
+  name: İlter Cengiz
+  url: http://blog.cengiz.im
+
+---
 
 - Add a `UITextView` inside a `UITableViewCell` and adjust the cell's size, so that `UITextView` will also be resized
 - Add a `UITextView` to the `UIViewController` (or a subclass of it) and resize the `UITextView` itself
 
 But I've used non of the above in my upcoming app. I've found a tweaked version of the second technique.
+
+<!-- more -->
 
 ## Don't resize the `UITextView`
 

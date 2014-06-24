@@ -4,7 +4,27 @@ layout: default
 
 <div class="post">
   <h1 class="post-title">{{ page.title }}</h1>
-  <span class="post-date">{{ page.date | date_to_string }}</span>
+  <div class="post-meta">
+    <span class="post-date">{{ page.date | date_to_string }}</span>
+    {% if page.writer %}
+    <span class="post-writer">
+      &mdash; by
+      {% if page.writer.url %}
+        <a target="_blank" href="{{ page.writer.url }}">
+          {{ page.writer.name }}
+        </a>
+      {% else %}
+        {{ page.writer.name }}
+      {% endif %}
+    </span>
+    {% endif %}
+  </div>
+
+  {% if page.abstract %}
+  <div class="post-abstract">
+    {{ page.abstract | markdownify }}
+  </div>
+  {% endif %}
   {{ content }}
 </div>
 
@@ -17,6 +37,7 @@ layout: default
           <a href="{{ post.url }}">
             {{ post.title }}
             <small>{{ post.date | date_to_string }}</small>
+            <small>&mdash; by {{ post.writer.name }}</small>
           </a>
         </h3>
       </li>

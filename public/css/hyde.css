@@ -89,6 +89,12 @@ html {
   background-position: center center;
 }
 
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) { 
+  .sidebar-about h1 {
+    background-image: url(../img/webbox-logo@2x.png);
+  }
+}
+
 /* Sidebar nav */
 .sidebar-nav {
   margin-bottom: 1rem;

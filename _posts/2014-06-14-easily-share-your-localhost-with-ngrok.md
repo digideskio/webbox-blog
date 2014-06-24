@@ -1,10 +1,15 @@
 ---
 title: Easily Share Your Localhost With Ngrok
 layout: post
+abstract: |
+  Sometimes you want to show a prototype **Web Application** that is working on your
+  computer to other people. The problem is that **Deployment** is **not** always 
+  that easy.
+
+writer:
+  name: Serdar Doğruyol
+  url: http://serdardogruyol.com
 ---
-Sometimes you want to show a prototype **Web Application** that is working on your
-computer to other people. The problem is that **Deployment** is **not** always 
-that easy.
 
 You ask people to check your app on your local development environment. It’s 
 time consuming and maybe sometimes kinda embarassing.

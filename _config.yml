@@ -19,3 +19,21 @@ author:
 
 paginate:         5
 
+post:
+  template:       _templates/_post.txt
+  extension:      md
+
+page:
+  template:       _templates/_page.txt
+  extension:      md
+
+editor:           vim
+
+git:
+  branch:         master
+
+transfer:
+  command:        rsync
+  settings:       -av
+  source:         _site/
+  destination:    false 

@@ -1,3 +1,5 @@
+require "bundler/setup"
+
 # == Dependencies ==============================================================
 
 require 'rake'

@@ -5,7 +5,7 @@ abstract: |
   We were sponsor of the [jstanbul](http://jstanbul.org) semi-monthly meetup!
 
 writer:
-  name: vigo
+  name: Uğur Özyılmazel
   url: http://twitter.com/vigobronx
 ---
 {% video tumblr 87233775544 %}

@@ -3,7 +3,7 @@ title: We <3 Rails Girls Summer of Code
 layout: post
 
 writer:
-  name: vigo
+  name: Uğur Özyılmazel
   url: http://twitter.com/vigobronx
 ---
 

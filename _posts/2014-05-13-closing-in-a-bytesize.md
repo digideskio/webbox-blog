@@ -7,7 +7,7 @@ abstract: |
   was awesome! We met great people, great developers!
 
 writer:
-  name: vigo
+  name: Uğur Özyılmazel
   url: http://twitter.com/vigobronx
 ---
 

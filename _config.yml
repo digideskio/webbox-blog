@@ -15,12 +15,13 @@ url:              http://blog.webbox.io
 baseurl:          /
 
 excerpt_separator: "<!-- more -->"
+paginate_path:   'page/:num'
 
 author:
   name:           webBox Team
   url:            https://twitter.com/webboxio
 
-paginate:         5
+paginate:         10
 
 post:
   template:       _templates/_post.txt

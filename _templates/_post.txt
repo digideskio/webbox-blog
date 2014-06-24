@@ -1,5 +1,13 @@
 ---
 title:
 layout: post
+
+abstract: |
+  Lorem ipsum
+  dolor sit amet.
+
+writer:
+  name: webBox
+  url: http://webbox.io
 ---
 

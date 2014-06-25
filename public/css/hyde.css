@@ -59,6 +59,27 @@ html {
   color: rgba(255,255,255,.5);
   background-color: #3064A6;
 }
+
+.share-buttons{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.share-buttons li{
+  display: inline-block;
+  margin-right: 10px;
+  opacity: 0.6;
+}
+
+.share-buttons li:hover {
+  opacity: 1;
+}
+
+.share-buttons li:hover {
+  -webkit-filter: saturate(1) blur(0px);
+}
+
 @media (min-width: 48em) {
   .sidebar {
     position: fixed;

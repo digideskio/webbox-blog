@@ -15,6 +15,8 @@ Write post:
 rake post['Hello World']
 ```
 
+It will create new post on `_posts` directory.
+
 ### Tasks
 
 ```bash

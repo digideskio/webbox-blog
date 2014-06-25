@@ -35,9 +35,3 @@ editor:           vim
 
 git:
   branch:         master
-
-transfer:
-  command:        rsync
-  settings:       -av
-  source:         _site/
-  destination:    false 

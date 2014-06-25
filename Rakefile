@@ -1,5 +1,5 @@
 require "bundler/setup"
-
+require "./credentials"
 # == Dependencies ==============================================================
 
 require 'rake'
@@ -223,4 +223,11 @@ task :transfer do
   else
     raise "#{command} isn't a valid file transfer command."
   end
+end
+
+desc "Deploy to webBox.io"
+task :deploy_webboxio do
+  Rake::Task[:build].invoke
+  execute("rsync -av _site/ #{DEPLOY_DESTINATION}")
+  puts "Your site was transfered."
 end

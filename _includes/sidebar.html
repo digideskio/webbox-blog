@@ -10,7 +10,7 @@
     </div>
 
     <nav class="sidebar-nav">
-      <a class="sidebar-nav-item{% if page.url == site.baseurl %} active{% endif %}" href="{{ site.baseurl }}">Home</a>
+      <a class="sidebar-nav-item{% if page.url == site.baseurl %} active{% endif %}" href="{{ site.baseurl }}">Blog Home</a>
 
       {% comment %}
         The code below dynamically generates a sidebar nav of pages with
@@ -26,7 +26,12 @@
         {% endif %}
       {% endfor %}
 
-      <a class="sidebar-nav-item" href="http://webbox.io">Who are we?</a>
+      <p>
+        <a title="Official Website" href="http://webbox.io">{% fa_icon home %}</a>
+        <a title="GitHub Organization" href="https://github.com/webboxio">{% fa_icon github %}</a>
+        <a title="Official Twitter Account" href="https://twitter.com/webboxio">{% fa_icon twitter %}</a>
+        <a title="Official Facebook Page" href="https://www.facebook.com/webbox.io">{% fa_icon facebook %}</a>
+      </p>
     </nav>
 
    <p>&copy; {{ site.time | date: '%Y' }}. All rights reserved.</p>

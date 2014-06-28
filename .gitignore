@@ -44,3 +44,4 @@ node_modules
 .bundle
 vendor/bundle
 credentials.rb
+_drafts/

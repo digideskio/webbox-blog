@@ -7,9 +7,9 @@ highlighter:      pygments
 permalink:        pretty
 
 # Setup
-title:            webBox.io Blog
+title:            webBox.io | Blog
 tagline:          "the blog"
-description:      here, we reveal the secret sauce recipes inside the magical blue box.
+description:      We reveal the secret sauce recipes inside the magical blue box.
 
 url:              http://blog.webbox.io
 baseurl:          /

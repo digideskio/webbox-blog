@@ -7,7 +7,7 @@ highlighter:      pygments
 permalink:        pretty
 
 # Setup
-title:            webBox
+title:            webBox.io Blog
 tagline:          "the blog"
 description:      here, we reveal the secret sauce recipes inside the magical blue box.
 
@@ -18,7 +18,7 @@ excerpt_separator: "<!-- more -->"
 paginate_path:   'page/:num'
 
 author:
-  name:           webBox Team
+  name:           webBox.io Team
   url:            https://twitter.com/webboxio
 
 paginate:         10

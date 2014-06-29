@@ -13,7 +13,11 @@
       {{ page.title }} &middot; {{ site.title }}
     {% endif %}
   </title>
-
+  
+  {% capture opengraph_url %}{{ site.url }}{{ page.url }}{% endcapture %}
+  {% capture opengraph_title %}{{ site.title }} &middot; {% if page.url == "/" %}{{ site.tagline }}{% else %}Blog Post : {{ page.title }}{% endif %}{% endcapture %}
+  {% capture opengraph_description %}{% if page.url == "/" %}{{ site.description }}{% else %}{{ page.abstract | escape | strip_newlines | condense_spaces }}{% endif %}{% endcapture %}
+  
   <!-- CSS -->
   <link rel="stylesheet" href="{{ site.baseurl }}public/css/poole.css">
   <link rel="stylesheet" href="{{ site.baseurl }}public/css/syntax.css">
@@ -28,4 +32,11 @@
 
   <!-- RSS -->
   <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+  <meta property="og:title" content="{{ opengraph_title }}">
+  <meta property="og:url" content="{{ opengraph_url }}">
+  <meta property="og:site_name" content="webBox.io">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="{{ site.url }}/assets/opengraph.png">
+  <meta property="og:description" content="{{ opengraph_description }}">
 </head>

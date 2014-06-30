@@ -60,20 +60,19 @@ html {
   background-color: #3064A6;
 }
 
-.share-buttons{
+.share-buttons {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 0 2em 0;
 }
 
-.share-buttons li{
+.share-buttons li {
   display: inline-block;
   margin-right: 10px;
-  opacity: 0.6;
 }
 
 .share-buttons li:hover {
-  opacity: 1;
+  opacity: .9;
 }
 
 .share-buttons li:hover {

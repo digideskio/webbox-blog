@@ -1,5 +1,5 @@
 ---
-title: CSS: :before and :after pseudo elements in practice
+title: "CSS: :before and :after pseudo elements in practice"
 layout: post
 published: true
 abstract: |

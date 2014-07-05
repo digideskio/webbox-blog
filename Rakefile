@@ -17,6 +17,7 @@ task :default => :watch
 
 desc "Build the site"
 task :build do
+  ENV["JEKYLL_ENV"] = "production"
   system "jekyll build"
 end
 

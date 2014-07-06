@@ -312,3 +312,5 @@ All the examples used in this article are available [here](https://github.com/kr
   - [Meet the Pseudo Class Selectors](http://css-tricks.com/pseudo-class-selectors/)
   - [CSS Triangle](http://css-tricks.com/snippets/css/css-triangle/)
   - [Learning To Use The :before And :after Pseudo-Elements In CSS](http://coding.smashingmagazine.com/2011/07/13/learning-to-use-the-before-and-after-pseudo-elements-in-css/)
+
+This article was originally published at [krasimirtsonev.com](http://krasimirtsonev.com/blog/article/CSS-before-and-after-pseudo-elements-in-practice).

@@ -1,6 +1,6 @@
 # webBox Blog Source
 
-Based on [Jekyll](http://jekyllrb.com) and [Hyde](http://hyde.poole.com)
+Based on [Jekyll](http://jekyllrb.com) and [Hyde](http://hyde.getpoole.com)
 
 ## Install
 

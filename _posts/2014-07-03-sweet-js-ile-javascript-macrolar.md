@@ -1,18 +1,17 @@
 ---
-title: Sweet.js ile JavaScript Macrolar'a Giriş
+title: Introduction to Macros with Sweet.js
 layout: post
 published: true
 abstract: |
-  Sweet.js ile JavaScript Macrolar kullanarak kodunuzu modüler hale getirin. Bu yazıda çok ufak bir giriş yapacağız :)
+  Use Sweet.js and It’s macros to create modular JavaScript code.
 writer:
   name: Fatih Kadir Akın
   url: http://twitter.com/fkadev
 
 ---
 
-Merhabalar,
-
-Bildiğiniz gibi, JavaScript'te bir çok şeyi tekrar ederek aslında aynı kodu sürekli yazıyoruz ve bu çoğu zaman büyük zaman kaybı ve kod karmaşası olarak dönüyor.
+As far as you know, we mostly use same code over and over again on JavaScript.
+Sometimes this makes huge time-loss and creates code confusion.
 
 ```javascript
 for (var i = 0; i < 10; i++) {
@@ -20,7 +19,8 @@ for (var i = 0; i < 10; i++) {
 }
 ```
 
-Bu kod üzerinde tekrar ettiğimiz ve aslında *daha kolay* olabilecek bir çok şey var.
+There are some **things** in this code that we repeat unintentionally and
+surprise! there is a way to simplify this:
 
 ```javascript
 from 0 to 10 as i {
@@ -28,9 +28,8 @@ from 0 to 10 as i {
 }
 ```
 
-Biraz daha *deklaratif* ve daha okunabilir/düzenlenebilir bir kod.
-
-Hatta biraz daha kısaltarak,
+This is a bit more **declarative** and readable/editable code. Let’s create
+more smaller version:
 
 ```javascript
 to 10 as i {
@@ -38,47 +37,47 @@ to 10 as i {
 }
 ```
 
-desek hiç de fena olmazdı. Bunun için kullanacağımız araç, Mozilla tarafından geliştirilen [Sweet.js][1].
+Thanks to [Mozilla][0], they built a sweet JavaScript library called [Sweet.js][1].
 
-Sweet.js Macromuzu [macro editor][2] kullanarak düzenleyebiliriz.
+We can edit our Sweet.js macro via using [macro editor][2].
 
-Şimdi yukarıda öngördüğümüz makroyu yazalım, ama öncesinde bir makroyu nasıl yazdığımıza bakalım:
+Let’s write down the macro we've been considering above but first, we need to
+examine the macro structure.
 
 ```javascript
-macro <isim> {
-    rule { <kod tasarımı> } => { <çıktı> }
+macro <NAME> {
+    rule { <CODE> } => { <OUTPUT> }
 }
 ```
 
-şeklinde bir yapı ile makromuzu tasarlıyoruz. Ve her değişkenimizin başına bir `$` işareti koyuyoruz.
+We need to place a `$` sign in-front of the macro variable. We can call our
+macro:
 
-Çağırmak istediğimiz zaman ise
+    <NAME> <CODE>
 
-    <isim> <kod tasarımı>
-
-diyerek makromuzu çağırıyoruz.
+Here is an example macro:
 
 ```javascript
-macro degisken {
+macro variableDemo {
     rule { $x } => { var $x; }
 }
 ```
 
-Bu makroyu şu şekilde kullandığımızda:
+and usage:
 
 ```javascript
-degisken x = 10
+variableDemo x = 10
 ```
 
-aşağıdaki sonucu elde edeceğiz:
+this will produce:
 
 ```javascript
-var x = 10;
+var variableDemo = 10;
 ```
 
-## Makro Tasarımı
+## Design of Macro
 
-Tabii bu çok basit bir örnek, şimdi yukarıda kurguladığımız `for` makrosunu deneyelim:
+Let’s try to design a macro with `for`
 
 ```javascript
 to 10 as index {
@@ -86,13 +85,14 @@ to 10 as index {
 }
 ```
 
-Yukarıdaki örneğin aşağıdaki tasarım şablonuna denk geldiğini hissedebilirsiniz:
+call it:
 
 ```javascript
 to $value as $index $code
 ```
 
-Bu noktada `$value` değeri `10`, `$index` olarak `index` ve `$code` olarak `{ console.log(index); }` vermiş oluyoruz. O halde hemen makromuzu yazalım:
+In this point, `$value` is `10`, `$index` is `index` and `$code` is
+ `{ console.log(index); }`. Let’s write down our macro:
 
 ```javascript
 macro to {
@@ -102,7 +102,7 @@ macro to {
 }
 ```
 
-`...` yazdığımız yere, bu makronun tam olarak neyi karşıladığını yazalım;
+`...` used as a **placeholder** and holds the code below;
 
 ```javascript
 macro to {
@@ -112,7 +112,7 @@ macro to {
 }
 ```
 
-Artık bir makroya sahibiz:
+Well, we have a macro to use :)
 
 ```javascript
 to 30 as i {
@@ -120,7 +120,7 @@ to 30 as i {
 }
 ```
 
-dediğimizde
+out puts:
 
 ```javascript
 for (var i = 0; i < 30; i++) {
@@ -128,11 +128,9 @@ for (var i = 0; i < 30; i++) {
 }
 ```
 
-şeklinde bir çıktı sağlamış olacağız.
+Let’s extend this macra a little bir and add another design to it.
 
-Şimdi bu makroyu biraz daha genişletelim ve yeni bir tasarım daha ekleyelim,
-
-Bu kez tasarımda başlangıç değerini de verelim. Yani
+Right now, let’s set the **initial value**;
     
 ```javascript
 to 30 start from 10 as i {
@@ -140,7 +138,7 @@ to 30 start from 10 as i {
 }
 ```
 
-yazdığımızda döngü `10`dan başlasın:
+this means, loop will start from `10`.
 
 ```javascript
 macro to {
@@ -154,7 +152,7 @@ macro to {
 }
 ```
 
-Şimdi `to` makrosu iki farklı tasarıma farklı şekilde cevap verebiliyor hale geldi.
+Now, `to` will respond to two different designs in two different ways.
 
 ```javascript
 to 30 start from 10 as i {
@@ -162,7 +160,7 @@ to 30 start from 10 as i {
 }
 ```
 
-dediğimizde
+will produce;
 
 ```javascript
 for (var i = 10; i < 30; i++) {
@@ -170,21 +168,20 @@ for (var i = 10; i < 30; i++) {
 }
 ```
 
-çıktısı alacağız.
 
-## Makroların Birlikte Kullanımı
+## Using / Merging Macros
 
-Sweet.js'in güzel bir tarafı da şu ki, **bir makro diğer bir makroyu kullanabiliyor.**
+One of the best parts of Sweet.js that **a macro can use/call other macro**.
 
-Şimdi hemen bunu yukarıdaki örneği geliştirerek yapalım:
+Lets extend an example above;
 
-`to 30 start from 10 as i` gibi bir şablon daha da güzel hale getirilebilir:
+`to 30 start from 10 as i` we need to polish this a bit:
 
 ```javascript
 from 10 to 30 as index
 ```
 
-dersek, daha okunabilir bir hale gelecek gibi görünüyor. O halde bir `from` makrosu yazmamız gerekecek.
+more readable. This means we need to create a `from` macro!
 
 ```javascript
 macro from {
@@ -192,7 +189,7 @@ macro from {
 }
 ```
 
-Bu makroyla yukarıdaki şablonu tanımlamış olduk, şimdi bu makro içerisinden `to` makrosunu uyandıralım:
+Let’s plug `to` macro to our `from` macro.
 
 ```javascript
 macro from {
@@ -202,9 +199,9 @@ macro from {
 }
 ```
 
-dediğimizde, `from` makrosu, `to` makrosunu da çağırmış olacak.
+`from` macro will also call `to` :)
 
-Bütün olarak aşağıdaki kodu deneyelim:
+Let’s try the code below:
 
 ```javascript
 macro from {
@@ -243,12 +240,19 @@ to 10 start from 2 as i {
 }
 ```
 
-Bu şekilde yeni bir döngü sağlayan makro oluşturmuş olduk.
+Now, we have created a macro which provides a custom loop mechanism.
 
-[Sweet.js][1] çok daha detaylı bir makro kütüphanesi ve bu anlamda detaylıca incelemeniz çok faydalı olacaktır. Makro kullanımlarında **tekrarlar, şablonlar, 'hijyen', `infix`** gibi konuları detaylıca incelemek için [http://sweetjs.org/doc/main/sweet.html][3] adresine göz atmanız son derece faydalı olur :)
+[Sweet.js][1] is highly details macro library. That would be really helpful
+if you check and read it. If you want to know more about **repetition,
+patterns, hygiene** or `infix` please take a look at 
+[http://sweetjs.org/doc/main/sweet.html][3]
 
-Vaktim olursa ikinci kısmını da yazmayı planlıyorum :)
+If I can find more time, I'm planning to write more about this topic in the
+future!
 
+
+
+[0]: www.mozilla.org
 [1]: http://sweetjs.org
 [2]: http://sweetjs.org/browser/editor.html
 [3]: http://sweetjs.org/doc/main/sweet.html

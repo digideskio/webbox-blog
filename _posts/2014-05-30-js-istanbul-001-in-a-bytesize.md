@@ -10,5 +10,6 @@ writer:
 ---
 {% video tumblr 87233775544 %}
 
-Istanbul's first JavaScript community Jstanbul started regular meetups and the first 
-one happened in Girisim Fabrikasi. As webBox, we were there! And it was crowded!
+Istanbul’s first JavaScript community Jstanbul started regular meetups and the first 
+one happened in [Girişim Fabrikası](http://girisimfabrikasi.com). As webBox, 
+we were there! And it was crowded!

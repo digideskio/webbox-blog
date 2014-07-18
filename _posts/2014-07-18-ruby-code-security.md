@@ -8,18 +8,18 @@ writer:
   name: Uğur Özyılmazel
   url: http://twitter.com/vigobronx
 ---
-I’ve started to write a [Ruby 101][1] book in Turkish. This will be a kind of
-pocket guide, some basic stuff especially for me :) It’s like a notebook for
-daily usage.
+I started writing a [Ruby 101][1] book in Turkish. This will be a kind of
+pocket guide, covering most of the basic stuff especially for me :) It’s like a notebook to assist you in your
+daily Ruby usage.
 
 While I was writing about `global_variables`, (*That was a quite refreshing
-memory for me*) I remembered such a lovel protection variable which is
+memory for me*) I remembered a lovely global variable which is called
 `$SAFE`
 
 ## What is `$SAFE`
 
-Well, as far as you can understand, this is some kind of flag that Ruby will
-evaluate the following code against the required security level.
+Well, as far as you can understand, this is a flag that Ruby will
+evaluate the upcoming code against the required security level.
 
 Normal, all the Ruby code / scripts work at **level 0**. This means, by default:
 
@@ -62,7 +62,7 @@ input.tainted?    # false
 ```
 
 `untaint` works because we did not set the **security level**. Let’s try
-with **level 3**. Save this file as `test_tainted.rb` and execute via;
+ **level 3**. Save this file as `test_tainted.rb` and execute via;
 `ruby test_tainted.rb`
 
 ```ruby
@@ -82,28 +82,28 @@ Booom!
 
 ## Let’s modify a String object
 
-Most beautiful part for me in Ruby, you can manipulate standard objects. You
-can add a custom method to a `String` right?
+For me the most beautiful part of Ruby is that you can manipulate anything even the Standard Libraries. For example you
+can add a custom method to `String`.
 
 ```ruby
 puts "hello"  # a standard string
 
 class String
- def my_metdod
+ def my_method
    "Hello! This is my custom method"
  end
 end
 
-puts "hello".my_metdod
+puts "hello".my_method
 
 $SAFE = 4      # lets lock this thing!
 class String
- def my_metdod
+ def my_mehdod
    "I modified my custom method 8)"
  end
 end
 
-puts "hello".my_metdod
+puts "hello".my_method
 ``` 
 
 output is:
@@ -151,7 +151,7 @@ You’ll get:
 
     SecurityError: Insecure operation - []
 
-When google it about `$SAFE`, I’ve found that:
+When google it about `$SAFE`, I found that:
 
 > We use $SAFE = 4 to create a sandbox for the
 execution of semi-trusted scripts, conforming
@@ -178,8 +178,8 @@ cannot be trusted.  Untrusting is a mark for data from untrusted code
 (that run under $SAFE level 4).
 
 One more important thing. You can’t set/change `$SAFE` if you set it earlier.
-I mean, if you set level to **3** somewhere in the code, you can’t change
-it to **2** or lesser value after it. You can increment it but **can’t decrement**!
+I mean, if you set `$SAFE` level to **3**  you can’t modify it later like to **2** or lesser.
+. You can increment the `$SAFE` value but **can’t decrement**!
 
 ```ruby
 $SAFE = 3
@@ -201,7 +201,7 @@ $SAFE = 2
 puts "Hello world"
 ```
 
-Really interesting topic. Sad that it is not possible to find more detailed
+This is a really interesting topic. Sad that it is not possible to find more detailed
 information about it. I tried to cover as much as I can. Feel free to add
 comments, resources, links to this post!
 

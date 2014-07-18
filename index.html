@@ -31,7 +31,7 @@ title: Home
 
     <div class="post-excerpt">
       {% if post.abstract %}
-        {{ post.abstract | strip_newlines | markdownify }}
+        {{ post.abstract | markdownify }}
       {% else %}
         {{ post.excerpt }}
       {% endif %}

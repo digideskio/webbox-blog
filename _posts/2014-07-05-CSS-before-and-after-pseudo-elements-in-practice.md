@@ -3,7 +3,12 @@ title: "CSS: :before and :after pseudo elements in practice"
 layout: post
 published: true
 abstract: |
-  By definition *:before* and *:after* are CSS pseudo elements. You can use them to insert something before or after the content of an element. There are some great articles giving the basics, but I wanted to write down a blog post for the real use cases. Or, at least, to show what I'm using them for.
+  By definition **:before** and **:after** are CSS pseudo elements. You can
+  use them to insert something before or after the content of an element.
+  
+  There are some great articles giving the basics, but I wanted to write down 
+  a blog post for the real use cases. Or, at least, to show what I'm using
+  them for.
 writer:
   name: Krasimir Tsonev
   url: https://twitter.com/KrasimirTsonev

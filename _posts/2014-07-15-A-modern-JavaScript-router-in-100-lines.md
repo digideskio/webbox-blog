@@ -3,7 +3,11 @@ title: "A modern JavaScript router in 100 lines"
 layout: post
 published: true
 abstract: |
-  Nowadays the popular single page applications are everywhere. Having such application means that you need a solid routing mechanism. Frameworks like Emberjs are truly build on top of a Router class. I'm still not sure that this is a concept which I like, but I'm absolutely sure that AbsurdJS should have a build-in Router. And, as with everything in this little library, it should be small, simple class. 
+  Nowadays the popular single page applications are everywhere. Having such application means that you need a solid routing mechanism.
+  
+  Frameworks like Emberjs are truly build on top of a Router class. I'm still not sure that this is a concept which I like, but I'm absolutely sure that AbsurdJS should have a build-in Router.
+  
+  And, as with everything in this little library, it should be small, simple class. 
 writer:
   name: Krasimir Tsonev
   url: https://twitter.com/KrasimirTsonev

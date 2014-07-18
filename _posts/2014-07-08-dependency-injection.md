@@ -3,7 +3,13 @@ title: "Dependency injection in JavaScript"
 layout: post
 published: true
 abstract: |
-  Sooner or later you need to use abstractions made by other developers. You depend on someone's other code. I like the dependency-free modules, but that's kinda difficult to achieve. Even if you create those nice black-box liked components you still have a part which combines everything. That's where the dependency injection placed in.
+  Sooner or later you need to use abstractions made by other developers.
+  You depend on someone's other code. I like the dependency-free modules,
+  but that's kinda difficult to achieve.
+  
+  Even if you create those nice black-box liked components you still have a
+  part which combines everything. That's where the dependency injection
+  placed in.
 writer:
   name: Krasimir Tsonev
   url: https://twitter.com/KrasimirTsonev

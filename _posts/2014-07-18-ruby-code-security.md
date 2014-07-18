@@ -98,7 +98,7 @@ puts "hello".my_method
 
 $SAFE = 4      # lets lock this thing!
 class String
- def my_mehdod
+ def my_method
    "I modified my custom method 8)"
  end
 end

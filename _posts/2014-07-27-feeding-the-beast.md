@@ -3,7 +3,9 @@ title: "Feeding the beast at 60fps"
 layout: post
 published: true
 abstract: |
-  The browsers nowadays are smart. They optimize everything and help us to produce better applications. They process our code as fast as possible and even on mobile devices deliver a pleasant experience. However, at the same time, it is possible to write buggy code and make the browser freezing.
+  The browsers nowadays are smart. They optimize everything and help us to produce better applications.
+  
+  They process our code as fast as possible and even on mobile devices deliver a pleasant experience. However, at the same time, it is possible to write buggy code and make the browser freezing.
 writer:
   name: Krasimir Tsonev
   url: https://twitter.com/KrasimirTsonev

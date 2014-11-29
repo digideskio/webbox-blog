@@ -3,12 +3,25 @@ title: "Unit test your client-side JavaScript"
 layout: post
 published: true
 abstract: |
-  I don't think that we have to discuss the importance of having tests. That's not something that we add to the project in addition. That's something that the project is based on. And because testing is so important we have bunch of tools in our disposal. We all know (I hope) how to test our back-end code. However, once we move to the front-end is a bit different. At the moment [we](http://trialreach.com/) are working on a big single page application and testing is one of our main focuses. In this article you will see how to unit test our client-side JavaScript.
+  I don't think that we have to discuss the importance of having tests. That's not something that we add to the project in addition. That's something that the project is based on. And because testing is so important we have bunch of tools in our disposal.
+
+  We all know (I hope) how to test our back-end code. However, once we move to the front-end is a bit different. At the moment [we](http://trialreach.com/) are working on a big single page application and testing is one of our main focuses. In this article you will see how to unit test our client-side JavaScript.
 writer:
   name: Krasimir Tsonev
   url: https://twitter.com/KrasimirTsonev
 ---
-I don't think that we have to discuss the importance of having tests. That's not something that we add to the project in addition. That's something that the project is based on. And because testing is so important we have bunch of tools in our disposal. We all know (I hope) how to test our back-end code. However, once we move to the front-end is a bit different. At the moment [we](http://trialreach.com/) are working on a big single page application and testing is one of our main focuses. In this article you will see how to unit test our client-side JavaScript. 
+I don't think that we have to discuss the importance of having tests.
+That's not something that we add to the project in addition. That's something
+that the project is based on.
+
+And because testing is so important we have bunch of tools in our disposal.
+We all know (I hope) how to test our back-end code.
+
+However, once we move to the front-end is a bit different. At the moment 
+[we](http://trialreach.com/) are working on a big single page application and 
+testing is one of our main focuses.
+
+In this article you will see how to unit test our client-side JavaScript. 
 
 ## The example
 

@@ -48,7 +48,7 @@ GEM
     rb-inotify (0.9.5)
       ffi (>= 0.5.0)
     redcarpet (3.1.2)
-    safe_yaml (1.0.3)
+    safe_yaml (1.0.4)
     sass (3.3.8)
     stringex (2.5.2)
     timers (1.1.0)
@@ -62,3 +62,6 @@ PLATFORMS
 DEPENDENCIES
   jekyll
   stringex
+
+BUNDLED WITH
+   1.11.2

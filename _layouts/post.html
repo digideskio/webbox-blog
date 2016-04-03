@@ -2,61 +2,70 @@
 layout: default
 ---
 <div class="post">
-  <h1 class="post-title">{{ page.title }}</h1>
-  <div class="post-meta">
-    <span class="post-date">{{ page.date | date_to_long_string }}</span>
-    {% if page.writer %}
-    <span class="post-writer">
-      &mdash; by
-      {% if page.writer.url %}
-        <a target="_blank" href="{{ page.writer.url }}">
-          {{ page.writer.name }}
-        </a>
-      {% else %}
-        {{ page.writer.name }}
-      {% endif %}
-    </span>
-    {% endif %}
-  </div>
+    <h1 class="post-title">{{ page.title }}</h1>
+    <div class="post-meta">
+        <span class="post-date">{{ page.date | date_to_long_string }}</span>
+        {% if page.writer %}
+            <span class="post-writer">
+                &mdash; by
+                {% if page.writer.url %}
+                    <a target="_blank" href="{{ page.writer.url }}">{{ page.writer.name }}</a>
+                {% else %}
+                    {{ page.writer.name }}
+                {% endif %}
+            </span>
+        {% endif %}
+    </div>
 
-  {% if page.abstract %}
-  <div class="post-abstract">
-    {{ page.abstract | markdownify }}
-  </div>
-  {% endif %}
-  {{ content }}
+    {% if page.abstract %}
+        <div class="post-abstract">
+            {{ page.abstract | markdownify }}
+        </div>
+    {% endif %}
+    {{ content }}
 </div>
 
 {% include share.html %}
 
 <div class="related">
-  <h2>Related Posts</h2>
-  <ul class="related-posts">
+    <h2>Related Posts</h2>
+    <ul class="related-posts">
     {% for post in site.related_posts limit:3 %}
-      <li>
+    <li>
         <h3>
-          <a href="{{ post.url }}">
-            {{ post.title }}<br/>
-            <small>{{ post.date | date_to_long_string }}</small>
-            <small>&mdash; by {{ post.writer.name }}</small>
-          </a>
+            <a href="{{ post.url }}">{{ post.title }}<br/>
+                <small>{{ post.date | date_to_long_string }}</small>
+                <small>&mdash; by {{ post.writer.name }}</small>
+            </a>
         </h3>
       </li>
     {% endfor %}
   </ul>
 </div>
 
+{% if site.env == "production" %}
 <div>
-    {% if site.env == "production" %}
     <div id="disqus_thread"></div>
-    <script type="text/javascript">
-        var disqus_identifier = "{{ site.url }}{{ page.id }}";
-        (function() {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = 'http://webboxioblog.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-      })();
-    </script>
-    {% endif %}
+    <script>
+    /**
+    * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+    */
+    /*
+    var disqus_config = function () {
+    this.page.url = PAGE_URL; // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
 
+    s.src = '//webboxioblog.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
 </div>
+{% endif %}

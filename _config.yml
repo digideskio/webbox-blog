@@ -35,3 +35,4 @@ editor:           vim
 
 git:
   branch:         master
+gems: ['jekyll-paginate']

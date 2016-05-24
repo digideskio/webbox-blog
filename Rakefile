@@ -20,9 +20,18 @@ task :build do
   system "jekyll build"
 end
 
-desc "Deploy to webBox.io"
+desc "Deploy to GitHub pages"
 task :deploy do
   Rake::Task[:build].invoke
+  system %{
+    cd _site/ &&
+    git add . &&
+    git commit -m "new build: #{Time.now}" &&
+    git push &&
+    echo "Deployed..." &&
+    cd ../
+  }
+  
 end
 
 # rake watch

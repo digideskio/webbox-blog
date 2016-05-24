@@ -1,5 +1,4 @@
 require "bundler/setup"
-require "./credentials"
 
 require "stringex"
 require "date"
@@ -24,8 +23,6 @@ end
 desc "Deploy to webBox.io"
 task :deploy do
   Rake::Task[:build].invoke
-  system "rsync -av _site/ #{DEPLOY_DESTINATION}"
-  puts "Transfer completed..."
 end
 
 # rake watch

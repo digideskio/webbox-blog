@@ -71,7 +71,7 @@ have?
 
 * Rack::Protection::IPSpoofing
 
-I did may application with [Django][4] last few years. Django was built-in
+I did many web application with [Django][4] last few years. Django was built-in
 coming with **CRSF** protection on web forms. I'd like to add **CRSF**
 protection to my sample Sinatra application with Rack’s feature!
 

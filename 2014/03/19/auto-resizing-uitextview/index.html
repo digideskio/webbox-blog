@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+      Auto Resizing UITextView &middot; webBox.io
+    
+  </title>
+  
+  
+  
+  
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/poole.css">
+  <link rel="stylesheet" href="/public/css/syntax.css">
+  <link rel="stylesheet" href="/public/css/hyde.css">
+  <link rel="stylesheet" href="/public/css/site.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
+  
+  <!-- Icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/public/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/public/favicon.ico">
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+  <meta property="og:title" content="webBox.io &middot; Blog Post : Auto Resizing UITextView">
+  <meta property="og:url" content="http://blog.webbox.io/2014/03/19/auto-resizing-uitextview/">
+  <meta property="og:site_name" content="webBox.io">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="http://blog.webbox.io/assets/opengraph.png">
+  <meta property="og:description" content="There are some techniques to resize `UITextView` with respect to the keyboard. I&#39;ll tell you one of these techniques.">
+</head>
+
+
+  <body>
+
+    <div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <h1>
+        <a href="/">
+          webBox.io
+        </a>
+      </h1>
+      <p class="lead">We reveal the secret sauce recipes inside the magical blue box.</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="sidebar-nav-item" href="/">Blog Home</a>
+
+      
+
+      
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+          
+        
+      
+        
+          
+        
+      
+
+      <p>
+        <a title="Official Website" href="http://webbox.io"><i class="fa fa-home "></i></a>
+        <a title="GitHub Organization" href="https://github.com/webboxio"><i class="fa fa-github "></i></a>
+        <a title="Official Twitter Account" href="https://twitter.com/webboxio"><i class="fa fa-twitter "></i></a>
+        <a title="Official Facebook Page" href="https://www.facebook.com/webbox.io"><i class="fa fa-facebook "></i></a>
+      </p>
+    </nav>
+
+   <p>&copy; 2016. All rights reserved.</p>
+  </div>
+</div>
+
+
+    <div class="content container">
+      <div class="post">
+    <h1 class="post-title">Auto Resizing UITextView</h1>
+    <div class="post-meta">
+        <span class="post-date">19 March 2014</span>
+        
+            <span class="post-writer">
+                &mdash; by
+                
+                    <a target="_blank" href="http://blog.cengiz.im">İlter Cengiz</a>
+                
+            </span>
+        
+    </div>
+
+    
+        <div class="post-abstract">
+            <p>There are some techniques to resize <code>UITextView</code> with respect to the keyboard. 
+I&#39;ll tell you one of these techniques.</p>
+
+        </div>
+    
+    <ul>
+<li>Add a <code>UITextView</code> inside a <code>UITableViewCell</code> and adjust the cell&#39;s size, so that <code>UITextView</code> will also be resized</li>
+<li>Add a <code>UITextView</code> to the <code>UIViewController</code> (or a subclass of it) and resize the <code>UITextView</code> itself</li>
+</ul>
+
+<p>But I&#39;ve used non of the above in my upcoming app. I&#39;ve found a tweaked version of the second technique.</p>
+
+<!-- more -->
+
+<h2>Don&#39;t resize the <code>UITextView</code></h2>
+
+<p>Instead adjust its <code>contentInset</code> property. So that, you can have a <code>UITextView</code> that <strong>seems like</strong> adjusting its size.</p>
+
+<p>This technique also comes with a very useful benefit that I was thinking ways to
+solve it. Assume that you are resizing <code>UITextView</code> every time keyboard is shown 
+or hidden. When you assign a pattern image or color to <code>UITextView</code> as background 
+color,<del>keyboard animation causes <code>UITextView</code> to adjust its size improperly during 
+its animation</del>. And this lets the super view of <code>UITextView</code> to say &#39;Hello!&#39; between
+<code>UITextView</code> and the keyboard. (At the second thought, I figured out that we can 
+fix this animation stuff with providing a <code>UIViewAnimationCurve</code> to <code>UIView</code>&#39;s
+animate methods.)</p>
+
+<p><img src="/assets/post_images/resizing.gif" alt="Demo"></p>
+
+<p>But by adjusting only contentInset of <code>UITextView</code>, you no longer need to think about it!</p>
+
+<h2>Talk is cheap, show me the code</h2>
+
+<p>Firstly, as you know, we need to add our lovely <code>UIViewController</code> (or probably a 
+subclass of it) as observer of keyboard notifications:</p>
+<div class="highlight"><pre><code class="language-objective-c" data-lang="objective-c"><span class="c1">// Register for keyboard notifications</span>
+<span class="p">[[</span><span class="n">NSNotificationCenter</span> <span class="n">defaultCenter</span><span class="p">]</span> <span class="n">addObserver</span><span class="o">:</span><span class="n">self</span> <span class="n">selector</span><span class="o">:</span><span class="k">@selector</span><span class="p">(</span><span class="n">keyboardWillShow</span><span class="o">:</span><span class="p">)</span> <span class="n">name</span><span class="o">:</span><span class="n">UIKeyboardWillShowNotification</span> <span class="n">object</span><span class="o">:</span><span class="nb">nil</span><span class="p">];</span>
+<span class="p">[[</span><span class="n">NSNotificationCenter</span> <span class="n">defaultCenter</span><span class="p">]</span> <span class="n">addObserver</span><span class="o">:</span><span class="n">self</span> <span class="n">selector</span><span class="o">:</span><span class="k">@selector</span><span class="p">(</span><span class="n">keyboardWillHide</span><span class="o">:</span><span class="p">)</span> <span class="n">name</span><span class="o">:</span><span class="n">UIKeyboardWillHideNotification</span> <span class="n">object</span><span class="o">:</span><span class="nb">nil</span><span class="p">];</span>
+</code></pre></div>
+<p>Then our keyboard notification handler methods:</p>
+<div class="highlight"><pre><code class="language-objective-c" data-lang="objective-c"><span class="cp">#pragma mark - Notifications</span>
+<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">keyboardWillShow:</span><span class="p">(</span><span class="n">NSNotification</span> <span class="o">*</span><span class="p">)</span><span class="nv">note</span> <span class="p">{</span>
+
+    <span class="n">CGRect</span> <span class="n">keyboardFrame</span> <span class="o">=</span> <span class="p">[</span><span class="n">note</span><span class="p">.</span><span class="n">userInfo</span><span class="p">[</span><span class="n">UIKeyboardFrameEndUserInfoKey</span><span class="p">]</span> <span class="n">CGRectValue</span><span class="p">];</span>
+    <span class="n">UIEdgeInsets</span> <span class="n">contentInset</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">textView</span><span class="p">.</span><span class="n">contentInset</span><span class="p">;</span>
+    <span class="n">contentInset</span><span class="p">.</span><span class="n">bottom</span> <span class="o">=</span> <span class="n">CGRectGetHeight</span><span class="p">(</span><span class="n">keyboardFrame</span><span class="p">);</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">textView</span><span class="p">.</span><span class="n">contentInset</span> <span class="o">=</span> <span class="n">contentInset</span><span class="p">;</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">textView</span><span class="p">.</span><span class="n">scrollIndicatorInsets</span> <span class="o">=</span> <span class="n">contentInset</span><span class="p">;</span>
+
+<span class="p">}</span>
+<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">keyboardWillHide:</span><span class="p">(</span><span class="n">NSNotification</span> <span class="o">*</span><span class="p">)</span><span class="nv">note</span> <span class="p">{</span>
+
+    <span class="n">UIEdgeInsets</span> <span class="n">contentInset</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">textView</span><span class="p">.</span><span class="n">contentInset</span><span class="p">;</span>
+    <span class="n">contentInset</span><span class="p">.</span><span class="n">bottom</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+
+    <span class="n">self</span><span class="p">.</span><span class="n">textView</span><span class="p">.</span><span class="n">contentInset</span> <span class="o">=</span> <span class="n">contentInset</span><span class="p">;</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">textView</span><span class="p">.</span><span class="n">scrollIndicatorInsets</span> <span class="o">=</span> <span class="n">contentInset</span><span class="p">;</span>
+
+<span class="p">}</span>
+</code></pre></div>
+<p>Alternatively, you can add this piece of code to <code>- keyboardWillShow:</code> method to 
+make text view auto scroll to current cursor location:</p>
+<div class="highlight"><pre><code class="language-objective-c" data-lang="objective-c"><span class="n">TimeInterval</span> <span class="n">animationDuration</span> <span class="o">=</span> <span class="p">[</span><span class="n">note</span><span class="p">.</span><span class="n">userInfo</span><span class="p">[</span><span class="n">UIKeyboardAnimationDurationUserInfoKey</span><span class="p">]</span> <span class="n">doubleValue</span><span class="p">];</span>
+<span class="n">CGRect</span> <span class="n">caretFrame</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">textView</span> <span class="n">caretRectForPosition</span><span class="o">:</span><span class="n">self</span><span class="p">.</span><span class="n">textView</span><span class="p">.</span><span class="n">selectedTextRange</span><span class="p">.</span><span class="n">start</span><span class="p">];</span>
+
+<span class="p">[</span><span class="n">UIView</span> <span class="n">animateWithDuration</span><span class="o">:</span><span class="n">animationDuration</span>
+                 <span class="nl">animations:</span><span class="o">^</span><span class="p">{</span>
+                     <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">textView</span> <span class="n">scrollRectToVisible</span><span class="o">:</span><span class="n">caretFrame</span> <span class="n">animated</span><span class="o">:</span><span class="nb">NO</span><span class="p">];</span>
+                 <span class="p">}];</span>
+</code></pre></div>
+<p>There is a problem with <code>UIScrollView</code>&#39;s (and its subviews&#39;) <code>- scrollRectToVisible:animated:</code> method.
+If you pass <code>YES</code> to animate the scrolling, it won&#39;t scroll a pixel at all.
+So, I found a workaround to force it to animate with <code>UIView</code>&#39;s animate method.</p>
+
+<p>If you find some bugs, have suggestions, or any other stuff, feel free to drop a line!</p>
+
+</div>
+
+<div>
+  <ul class="share-buttons">
+    <li>
+      <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fblog.webbox.io&t=" target="_blank" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(document.URL) + '&t=' + encodeURIComponent(document.URL)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-facebook  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="https://twitter.com/intent/tweet?source=http%3A%2F%2Fblog.webbox.io&text=: http%3A%2F%2Fblog.webbox.io&via=webboxio" target="_blank" title="Tweet" onclick="window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(document.title) + ': '  + encodeURIComponent(document.URL)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-twitter  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="https://getpocket.com/save?url=http%3A%2F%2Fblog.webbox.io&title=" target="_blank" title="Add to Pocket" onclick="window.open('https://getpocket.com/save?url=' + encodeURIComponent(document.URL) + '&title=' +  encodeURIComponent(document.title)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-chevron-circle-down  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="http://www.reddit.com/submit?url=http%3A%2F%2Fblog.webbox.io&title=" target="_blank" title="Submit to Reddit" onclick="window.open('http://www.reddit.com/submit?url=' + encodeURIComponent(document.URL) + '&title=' +  encodeURIComponent(document.title)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-reddit  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="http://wordpress.com/press-this.php?u=http%3A%2F%2Fblog.webbox.io&t=&s=" target="_blank" title="Publish on WordPress" onclick="window.open('http://wordpress.com/press-this.php?u=' + encodeURIComponent(document.URL) + '&t=' +  encodeURIComponent(document.title)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-wordpress  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+
+
+<div class="related">
+    <h2>Related Posts</h2>
+    <ul class="related-posts">
+    
+    <li>
+        <h3>
+            <a href="/2015/03/06/ruby-argument-references/">Ruby argument references<br/>
+                <small>06 March 2015</small>
+                <small>&mdash; by Uğur Özyılmazel</small>
+            </a>
+        </h3>
+      </li>
+    
+    <li>
+        <h3>
+            <a href="/2014/11/26/unit-test-your-client-side-javascript/">Unit test your client-side JavaScript<br/>
+                <small>26 November 2014</small>
+                <small>&mdash; by Krasimir Tsonev</small>
+            </a>
+        </h3>
+      </li>
+    
+    <li>
+        <h3>
+            <a href="/2014/10/03/how-to-fix-shellshock-on-ubuntu/">How to fix Shellshock on Ubuntu<br/>
+                <small>03 October 2014</small>
+                <small>&mdash; by Uğur Özyılmazel</small>
+            </a>
+        </h3>
+      </li>
+    
+  </ul>
+</div>
+
+
+<div>
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+    */
+    /*
+    var disqus_config = function () {
+    this.page.url = PAGE_URL; // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+
+    s.src = '//webboxioblog.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+
+
+    </div>
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-6463685-30', 'auto');
+      ga('send', 'pageview');
+    </script>
+    <script id="dsq-count-scr" src="//webboxioblog.disqus.com/count.js" async></script>
+    
+  </body>
+</html>

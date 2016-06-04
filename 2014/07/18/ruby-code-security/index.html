@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+      Ruby code security &middot; webBox.io
+    
+  </title>
+  
+  
+  
+  
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/poole.css">
+  <link rel="stylesheet" href="/public/css/syntax.css">
+  <link rel="stylesheet" href="/public/css/hyde.css">
+  <link rel="stylesheet" href="/public/css/site.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
+  
+  <!-- Icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/public/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/public/favicon.ico">
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+  <meta property="og:title" content="webBox.io &middot; Blog Post : Ruby code security">
+  <meta property="og:url" content="http://blog.webbox.io/2014/07/18/ruby-code-security/">
+  <meta property="og:site_name" content="webBox.io">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="http://blog.webbox.io/assets/opengraph.png">
+  <meta property="og:description" content="You can secure the Ruby code with `$SAFE` variable!">
+</head>
+
+
+  <body>
+
+    <div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <h1>
+        <a href="/">
+          webBox.io
+        </a>
+      </h1>
+      <p class="lead">We reveal the secret sauce recipes inside the magical blue box.</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="sidebar-nav-item" href="/">Blog Home</a>
+
+      
+
+      
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+          
+        
+      
+        
+          
+        
+      
+
+      <p>
+        <a title="Official Website" href="http://webbox.io"><i class="fa fa-home "></i></a>
+        <a title="GitHub Organization" href="https://github.com/webboxio"><i class="fa fa-github "></i></a>
+        <a title="Official Twitter Account" href="https://twitter.com/webboxio"><i class="fa fa-twitter "></i></a>
+        <a title="Official Facebook Page" href="https://www.facebook.com/webbox.io"><i class="fa fa-facebook "></i></a>
+      </p>
+    </nav>
+
+   <p>&copy; 2016. All rights reserved.</p>
+  </div>
+</div>
+
+
+    <div class="content container">
+      <div class="post">
+    <h1 class="post-title">Ruby code security</h1>
+    <div class="post-meta">
+        <span class="post-date">18 July 2014</span>
+        
+            <span class="post-writer">
+                &mdash; by
+                
+                    <a target="_blank" href="http://twitter.com/vigobronx">Uğur Özyılmazel</a>
+                
+            </span>
+        
+    </div>
+
+    
+        <div class="post-abstract">
+            <p>You can secure the Ruby code with <code>$SAFE</code> variable!</p>
+
+        </div>
+    
+    <p>I started writing a <a href="https://www.gitbook.io/book/vigo/ruby-101/">Ruby 101</a> book in Turkish. This will be a kind of
+pocket guide, covering most of the basic stuff especially for me :) It’s like a notebook to assist you in your
+daily Ruby usage.</p>
+
+<p>While I was writing about <code>global_variables</code>, (<em>That was a quite refreshing
+memory for me</em>) I remembered a lovely global variable which is called
+<code>$SAFE</code></p>
+
+<h2>What is <code>$SAFE</code></h2>
+
+<p>Well, as far as you can understand, this is a flag that Ruby will
+evaluate the upcoming code against the required security level.</p>
+
+<p>Normal, all the Ruby code / scripts work at <strong>level 0</strong>. This means, by default:</p>
+
+<p><code>$SAFE = 0</code></p>
+
+<p>What happens if you set the value to 1 ? Right now, you have something called
+<code>tainted</code> data. I remember the song called <strong>Tainted Love</strong> by <a href="http://www.youtube.com/watch?v=ZeJkbqjQvnk">Soft Cell</a>
+8) If you are old enough to remember them!</p>
+
+<p>After security level set, Ruby keeps track of changed or tainted data on lot
+of things. Such as <code>Array</code>, <code>String</code>, <code>Hash</code> etc...</p>
+
+<p>When the security level is set to 1;</p>
+
+<ul>
+<li><code>RUBYLIB</code> and <code>RUBYOPT</code> env-variables are not processed and current
+directory is not added to path.</li>
+<li>Command line options such as <code>-e, -i, -I, -r, -s, -S, -x</code> are not allowed.</li>
+<li>System commands or <code>exec</code> can won&#39;t work from a <strong>tainted string</strong></li>
+<li>Can not processes from <code>$PATH</code></li>
+<li><code>chroot</code> for directory won’t work (<em>if the dirname is tainted string</em>)</li>
+<li>Not possible to <code>glob</code> or <code>eval</code> tainted strings.</li>
+<li><code>require</code> won’t work if a filename is tainted string.</li>
+</ul>
+
+<h2>What is Tainted String ?</h2>
+
+<p>User inputs are <strong>tainted</strong> by default.</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">input</span> <span class="o">=</span> <span class="nb">gets</span>      <span class="c1"># get input from user</span>
+<span class="n">input</span><span class="o">.</span><span class="n">tainted?</span>    <span class="c1"># true</span>
+</code></pre></div>
+<p>can we fix this? YES!</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">input</span> <span class="o">=</span> <span class="nb">gets</span>      <span class="c1"># get input from user</span>
+<span class="n">input</span><span class="o">.</span><span class="n">tainted?</span>    <span class="c1"># true</span>
+<span class="n">input</span><span class="o">.</span><span class="n">untaint</span>     <span class="c1"># make it pure again :)</span>
+<span class="n">input</span><span class="o">.</span><span class="n">tainted?</span>    <span class="c1"># false</span>
+</code></pre></div>
+<p><code>untaint</code> works because we did not set the <strong>security level</strong>. Let’s try
+ <strong>level 3</strong>. Save this file as <code>test_tainted.rb</code> and execute via;
+<code>ruby test_tainted.rb</code></p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="c1">#!/usr/bin/env ruby</span>
+<span class="vg">$SAFE</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="nb">puts</span> <span class="s2">&quot;Enter a text&quot;</span>
+<span class="n">input</span> <span class="o">=</span> <span class="nb">gets</span>
+<span class="nb">puts</span> <span class="s2">&quot;Tainted Love? </span><span class="si">#{</span><span class="n">input</span><span class="o">.</span><span class="n">tainted?</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="n">input</span><span class="o">.</span><span class="n">untaint</span>
+<span class="nb">puts</span> <span class="s2">&quot;Is untain worked? Still tainted? </span><span class="si">#{</span><span class="n">input</span><span class="o">.</span><span class="n">tainted?</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>Booom!</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">tainted.rb:8:in `untaint&#39;: Insecure operation `untaint&#39; at level 3 (SecurityError)
+</code></pre></div>
+<h2>Let’s modify a String object</h2>
+
+<p>For me the most beautiful part of Ruby is that you can manipulate anything even the Standard Libraries. For example you
+can add a custom method to <code>String</code>.</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">puts</span> <span class="s2">&quot;hello&quot;</span>  <span class="c1"># a standard string</span>
+
+<span class="k">class</span> <span class="nc">String</span>
+ <span class="k">def</span> <span class="nf">my_method</span>
+   <span class="s2">&quot;Hello! This is my custom method&quot;</span>
+ <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="nb">puts</span> <span class="s2">&quot;hello&quot;</span><span class="o">.</span><span class="n">my_method</span>
+
+<span class="vg">$SAFE</span> <span class="o">=</span> <span class="mi">4</span>      <span class="c1"># lets lock this thing!</span>
+<span class="k">class</span> <span class="nc">String</span>
+ <span class="k">def</span> <span class="nf">my_method</span>
+   <span class="s2">&quot;I modified my custom method 8)&quot;</span>
+ <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="nb">puts</span> <span class="s2">&quot;hello&quot;</span><span class="o">.</span><span class="n">my_method</span>
+</code></pre></div>
+<p>output is:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">hello
+Hello! This is my custom method
+
+ArgumentError: $SAFE=4 is obsolete
+</code></pre></div>
+<p>Thats because you can not modify <code>String</code> on <strong>level 4</strong>.</p>
+
+<h2>Internal and External Data</h2>
+
+<p>If you set a value to a custom variable, this is an <strong>internal data</strong>.</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Hello&quot;</span>
+<span class="nb">puts</span> <span class="n">s</span><span class="o">.</span><span class="n">tainted?</span>      <span class="c1"># false</span>
+
+<span class="nb">puts</span> <span class="n">s</span> <span class="o">=~</span> <span class="sr">/(\w)/</span>
+<span class="nb">puts</span> <span class="vg">$1</span>              <span class="c1"># H</span>
+<span class="nb">puts</span> <span class="vg">$1</span><span class="o">.</span><span class="n">tainted?</span>     <span class="c1"># false</span>
+</code></pre></div>
+<p>Nothing is <strong>tainted</strong> because they are all <strong>internal</strong>. Let’s look at these
+variables;</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">puts</span> <span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;HOME&quot;</span><span class="o">].</span><span class="n">tainted?</span>            <span class="c1"># true</span>
+<span class="nb">puts</span> <span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;RBENV_VERSION&quot;</span><span class="o">].</span><span class="n">tainted?</span>   <span class="c1"># true</span>
+<span class="nb">puts</span> <span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;SHELL&quot;</span><span class="o">].</span><span class="n">tainted?</span>           <span class="c1"># true</span>
+</code></pre></div>
+<p>They are all <strong>external</strong> and <strong>tainted</strong> :) You can not use <strong>dangerous methods</strong>
+on tainted data! If you try to code above on <strong>level 3</strong>;</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="vg">$SAFE</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="nb">puts</span> <span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;HOME&quot;</span><span class="o">].</span><span class="n">tainted?</span>
+<span class="nb">puts</span> <span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;RBENV_VERSION&quot;</span><span class="o">].</span><span class="n">tainted?</span>
+<span class="nb">puts</span> <span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;SHELL&quot;</span><span class="o">].</span><span class="n">tainted?</span>
+</code></pre></div>
+<p>You’ll get:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">SecurityError: Insecure operation - []
+</code></pre></div>
+<p>When google it about <code>$SAFE</code>, I found that:</p>
+
+<blockquote>
+<p>We use $SAFE = 4 to create a sandbox for the
+execution of semi-trusted scripts, conforming
+to our application&#39;s plug-in API.
+&quot;Semi-trusted&quot; meaning of third-party origin,
+but not intentionally malicious.</p>
+</blockquote>
+
+<p><a href="https://www.ruby-forum.com/topic/1887006#1004452">source</a></p>
+
+<p>If you like to dig deep, please check <a href="http://phrogz.net/programmingruby/taint.html">this website</a> for more information.
+If you set it to level 3, <strong>All objects are created tainted</strong> and you <strong>can’t
+untaint</strong> any of them!</p>
+
+<h2>Trust and Untrust</h2>
+
+<p>There is a slightly diffence between <code>trust</code> and <code>taint</code>. <strong>Taint</strong> is related
+to data, <strong>Trust</strong> is related to an access to a data. It’s like <code>taint</code> checks
+if the data is ok? <code>trust</code> checks if the data is accessible.</p>
+
+<p><a href="https://github.com/matz">Matz</a> mentioned this on a Ruby forum:</p>
+
+<blockquote>
+<p>Tainting is a mark for data from outside world.  Data from outside
+cannot be trusted.  Untrusting is a mark for data from untrusted code
+(that run under $SAFE level 4).</p>
+</blockquote>
+
+<p>One more important thing. You can’t set/change <code>$SAFE</code> if you set it earlier.
+I mean, if you set <code>$SAFE</code> level to <strong>3</strong>  you can’t modify it later like to <strong>2</strong> or lesser.
+. You can increment the <code>$SAFE</code> value but <strong>can’t decrement</strong>!</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="vg">$SAFE</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="nb">puts</span> <span class="s2">&quot;Hello world&quot;</span>
+
+<span class="vg">$SAFE</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="nb">puts</span> <span class="s2">&quot;Hello world&quot;</span>
+</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text">SecurityError: tried to downgrade safe level from 3 to 2
+</code></pre></div>
+<p>But this works:</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="vg">$SAFE</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="nb">puts</span> <span class="s2">&quot;Hello world&quot;</span>
+
+<span class="vg">$SAFE</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="nb">puts</span> <span class="s2">&quot;Hello world&quot;</span>
+</code></pre></div>
+<p>This is a really interesting topic. Sad that it is not possible to find more detailed
+information about it. I tried to cover as much as I can. Feel free to add
+comments, resources, links to this post!</p>
+
+</div>
+
+<div>
+  <ul class="share-buttons">
+    <li>
+      <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fblog.webbox.io&t=" target="_blank" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(document.URL) + '&t=' + encodeURIComponent(document.URL)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-facebook  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="https://twitter.com/intent/tweet?source=http%3A%2F%2Fblog.webbox.io&text=: http%3A%2F%2Fblog.webbox.io&via=webboxio" target="_blank" title="Tweet" onclick="window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(document.title) + ': '  + encodeURIComponent(document.URL)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-twitter  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="https://getpocket.com/save?url=http%3A%2F%2Fblog.webbox.io&title=" target="_blank" title="Add to Pocket" onclick="window.open('https://getpocket.com/save?url=' + encodeURIComponent(document.URL) + '&title=' +  encodeURIComponent(document.title)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-chevron-circle-down  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="http://www.reddit.com/submit?url=http%3A%2F%2Fblog.webbox.io&title=" target="_blank" title="Submit to Reddit" onclick="window.open('http://www.reddit.com/submit?url=' + encodeURIComponent(document.URL) + '&title=' +  encodeURIComponent(document.title)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-reddit  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="http://wordpress.com/press-this.php?u=http%3A%2F%2Fblog.webbox.io&t=&s=" target="_blank" title="Publish on WordPress" onclick="window.open('http://wordpress.com/press-this.php?u=' + encodeURIComponent(document.URL) + '&t=' +  encodeURIComponent(document.title)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-wordpress  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+
+
+<div class="related">
+    <h2>Related Posts</h2>
+    <ul class="related-posts">
+    
+    <li>
+        <h3>
+            <a href="/2015/03/06/ruby-argument-references/">Ruby argument references<br/>
+                <small>06 March 2015</small>
+                <small>&mdash; by Uğur Özyılmazel</small>
+            </a>
+        </h3>
+      </li>
+    
+    <li>
+        <h3>
+            <a href="/2014/11/26/unit-test-your-client-side-javascript/">Unit test your client-side JavaScript<br/>
+                <small>26 November 2014</small>
+                <small>&mdash; by Krasimir Tsonev</small>
+            </a>
+        </h3>
+      </li>
+    
+    <li>
+        <h3>
+            <a href="/2014/10/03/how-to-fix-shellshock-on-ubuntu/">How to fix Shellshock on Ubuntu<br/>
+                <small>03 October 2014</small>
+                <small>&mdash; by Uğur Özyılmazel</small>
+            </a>
+        </h3>
+      </li>
+    
+  </ul>
+</div>
+
+
+<div>
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+    */
+    /*
+    var disqus_config = function () {
+    this.page.url = PAGE_URL; // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+
+    s.src = '//webboxioblog.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+
+
+    </div>
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-6463685-30', 'auto');
+      ga('send', 'pageview');
+    </script>
+    <script id="dsq-count-scr" src="//webboxioblog.disqus.com/count.js" async></script>
+    
+  </body>
+</html>

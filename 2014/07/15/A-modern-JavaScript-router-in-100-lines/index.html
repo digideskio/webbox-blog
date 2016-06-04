@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+      A modern JavaScript router in 100 lines &middot; webBox.io
+    
+  </title>
+  
+  
+  
+  
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/poole.css">
+  <link rel="stylesheet" href="/public/css/syntax.css">
+  <link rel="stylesheet" href="/public/css/hyde.css">
+  <link rel="stylesheet" href="/public/css/site.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
+  
+  <!-- Icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/public/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/public/favicon.ico">
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+  <meta property="og:title" content="webBox.io &middot; Blog Post : A modern JavaScript router in 100 lines">
+  <meta property="og:url" content="http://blog.webbox.io/2014/07/15/A-modern-JavaScript-router-in-100-lines/">
+  <meta property="og:site_name" content="webBox.io">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="http://blog.webbox.io/assets/opengraph.png">
+  <meta property="og:description" content="Nowadays the popular single page applications are everywhere. Having such application means that you need a solid routing mechanism.Frameworks like Emberjs are truly build on top of a Router class. I&#39;m still not sure that this is a concept which I like, but I&#39;m absolutely sure that AbsurdJS should have a build-in Router.And, as with everything in this little library, it should be small, simple class. ">
+</head>
+
+
+  <body>
+
+    <div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <h1>
+        <a href="/">
+          webBox.io
+        </a>
+      </h1>
+      <p class="lead">We reveal the secret sauce recipes inside the magical blue box.</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="sidebar-nav-item" href="/">Blog Home</a>
+
+      
+
+      
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+          
+        
+      
+        
+          
+        
+      
+
+      <p>
+        <a title="Official Website" href="http://webbox.io"><i class="fa fa-home "></i></a>
+        <a title="GitHub Organization" href="https://github.com/webboxio"><i class="fa fa-github "></i></a>
+        <a title="Official Twitter Account" href="https://twitter.com/webboxio"><i class="fa fa-twitter "></i></a>
+        <a title="Official Facebook Page" href="https://www.facebook.com/webbox.io"><i class="fa fa-facebook "></i></a>
+      </p>
+    </nav>
+
+   <p>&copy; 2016. All rights reserved.</p>
+  </div>
+</div>
+
+
+    <div class="content container">
+      <div class="post">
+    <h1 class="post-title">A modern JavaScript router in 100 lines</h1>
+    <div class="post-meta">
+        <span class="post-date">15 July 2014</span>
+        
+            <span class="post-writer">
+                &mdash; by
+                
+                    <a target="_blank" href="https://twitter.com/KrasimirTsonev">Krasimir Tsonev</a>
+                
+            </span>
+        
+    </div>
+
+    
+        <div class="post-abstract">
+            <p>Nowadays the popular single page applications are everywhere. Having such application means that you need a solid routing mechanism.</p>
+
+<p>Frameworks like Emberjs are truly build on top of a Router class. I&#39;m still not sure that this is a concept which I like, but I&#39;m absolutely sure that AbsurdJS should have a build-in Router.</p>
+
+<p>And, as with everything in this little library, it should be small, simple class. </p>
+
+        </div>
+    
+    <p>Nowadays the popular single-page applications are everywhere. Having such application means that you need a solid routing mechanism. Frameworks like <a href="http://emberjs.com/">Emberjs</a> are truly built on top of a Router class. I am still not sure that this is a concept that I like, but I am sure that <a href="http://absurdjs.com/">AbsurdJS</a> should have a build-in Router. Moreover, as with everything in this little library, it should be small, simple class. Let&#39;s see how such a module may look like.</p>
+
+<h2>Requirements</h2>
+
+<p>The router should:</p>
+
+<ul>
+<li>be less than 100 lines</li>
+<li>supports hash typed URLs like <i>http://site.com#products/list</i></li>
+<li>work with the <a href="https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Manipulating_the_browser_history">History API</a></li>
+<li>provide easy-to-use API</li>
+<li>not run automatically </li>
+<li>listen for changes only if we want to</li>
+</ul>
+
+<h2>The Singleton</h2>
+
+<p>I decided to have only one instance of the router. This may be a bad choice, because I had a project where I needed several routers, but this was an unusual application. If we implement the <a href="http://addyosmani.com/resources/essentialjsdesignpatterns/book/#singletonpatternjavascript">Singleton</a> pattern, we will not need to pass the router from object to object, and we do not have to worry about creating it.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Router</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">routes</span><span class="o">:</span> <span class="p">[],</span>
+    <span class="nx">mode</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nx">root</span><span class="o">:</span> <span class="s1">&#39;/&#39;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>There are three properties which we need.</p>
+
+<ul>
+    <li>routes - it keeps the current registered routes</li>
+    <li>mode - could be 'hash' or 'history' showing if we use the History API or not</li>
+    <li>root - the root URL path of the application. It is needed only if we use <i>pushState</i>.</li>
+</ul>
+
+<h2>Configuration</h2>
+
+<p>We need a method which will set up the router. We have only two things to pass, but it is good to do this within a function.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Router</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">routes</span><span class="o">:</span> <span class="p">[],</span>
+    <span class="nx">mode</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nx">root</span><span class="o">:</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span>
+    <span class="nx">config</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">mode</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">&amp;&amp;</span> <span class="nx">options</span><span class="p">.</span><span class="nx">mode</span> <span class="o">&amp;&amp;</span> <span class="nx">options</span><span class="p">.</span><span class="nx">mode</span> <span class="o">==</span> <span class="s1">&#39;history&#39;</span> 
+                    <span class="o">&amp;&amp;</span> <span class="o">!!</span><span class="p">(</span><span class="nx">history</span><span class="p">.</span><span class="nx">pushState</span><span class="p">)</span> <span class="o">?</span> <span class="s1">&#39;history&#39;</span> <span class="o">:</span> <span class="s1">&#39;hash&#39;</span><span class="p">;</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">root</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">&amp;&amp;</span> <span class="nx">options</span><span class="p">.</span><span class="nx">root</span> <span class="o">?</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">clearSlashes</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">root</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">:</span> <span class="s1">&#39;/&#39;</span><span class="p">;</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The mode is equal to &#39;history&#39; only if we want to and, of course, only if the <i>pushState</i> is supported. Otherwise, we are going to work with the hash in the URL. The <i>root</i> by default is set to a single slash &#39;/&#39;.</p>
+
+<h2>Getting the current URL</h2>
+
+<p>This is an important part of our router, because it will tell us where we are at the moment. We have two modes so we need a <i>if</i> statement.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">getFragment</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">fragment</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">mode</span> <span class="o">===</span> <span class="s1">&#39;history&#39;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">fragment</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">clearSlashes</span><span class="p">(</span><span class="nb">decodeURI</span><span class="p">(</span><span class="nx">location</span><span class="p">.</span><span class="nx">pathname</span> <span class="o">+</span> <span class="nx">location</span><span class="p">.</span><span class="nx">search</span><span class="p">));</span>
+        <span class="nx">fragment</span> <span class="o">=</span> <span class="nx">fragment</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/\?(.*)$/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">);</span>
+        <span class="nx">fragment</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">root</span> <span class="o">!=</span> <span class="s1">&#39;/&#39;</span> <span class="o">?</span> <span class="nx">fragment</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">root</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">:</span> <span class="nx">fragment</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">match</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/#(.*)$/</span><span class="p">);</span>
+        <span class="nx">fragment</span> <span class="o">=</span> <span class="nx">match</span> <span class="o">?</span> <span class="nx">match</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">clearSlashes</span><span class="p">(</span><span class="nx">fragment</span><span class="p">);</span>
+<span class="p">}</span> 
+</code></pre></div>
+<p>In both cases we are using the global <i>window.location</i> object. In the &#39;history&#39; mode version we need to remove the <i>root</i> part of the URL. We should also delete all the GET parameters, and this is done with a regex (/\?(.*)$/). The getting of the hash value is a little bit easier. Notice the usage of the <i>clearSlashes</i> function. Its job is to remove the slashes from the beginning and at the end of the string. This is necessary, because we do not want to force the developer to use a specific format of the URLs. Whatever he passes it is translated to the same value.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">clearSlashes</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">path</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">path</span><span class="p">.</span><span class="nx">toString</span><span class="p">().</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/\/$/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">).</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/^\//</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2>Adding and removing routes</h2>
+
+<p>While I am working on <a href="http://absurdjs.com/">AbsurdJS</a> I am always trying to give as much control as possible to the developers. In almost every router implementation, the routes are defined as strings. However, I prefer to pass a regular expression . It is much more flexible, because we may do crazy matches.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">add</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">re</span><span class="p">,</span> <span class="nx">handler</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="k">typeof</span> <span class="nx">re</span> <span class="o">==</span> <span class="s1">&#39;function&#39;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">handler</span> <span class="o">=</span> <span class="nx">re</span><span class="p">;</span>
+        <span class="nx">re</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">routes</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="nx">re</span><span class="o">:</span> <span class="nx">re</span><span class="p">,</span> <span class="nx">handler</span><span class="o">:</span> <span class="nx">handler</span><span class="p">});</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The function fills the <i>routes</i> array. If only a function is passed then it is considered as a handler of the default route which is just an empty string. Notice that most of the functions return <i>this</i>. This will help us to chain the methods of the class.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">remove</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">param</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nx">r</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="k">this</span><span class="p">.</span><span class="nx">routes</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span> <span class="nx">r</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">routes</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">handler</span> <span class="o">===</span> <span class="nx">param</span> <span class="o">||</span> <span class="nx">r</span><span class="p">.</span><span class="nx">re</span> <span class="o">===</span> <span class="nx">param</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">routes</span><span class="p">.</span><span class="nx">splice</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span> 
+            <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The deletion of a route could happen only if we pass a matching regularl expression, or the handler passed to <i>add</i> method.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">flush</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">routes</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">mode</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">root</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="p">;</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Sometimes we may need to reinitialize the class. So the <i>flush</i> method above could be used in such cases.</p>
+
+<h2>Check-in</h2>
+
+<p>Ok, we have an API for adding and removing URLs. We are also able to get the current address. So, the next logical step is to compare the registered entries.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">check</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">fragment</span> <span class="o">=</span> <span class="nx">f</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">getFragment</span><span class="p">();</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="k">this</span><span class="p">.</span><span class="nx">routes</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">match</span> <span class="o">=</span> <span class="nx">fragment</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">routes</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">re</span><span class="p">);</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">match</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">match</span><span class="p">.</span><span class="nx">shift</span><span class="p">();</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">routes</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">handler</span><span class="p">.</span><span class="nx">apply</span><span class="p">({},</span> <span class="nx">match</span><span class="p">);</span>
+            <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+        <span class="p">}</span>            
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>We are getting the fragment by using the <code>getFragment</code> method or accepting it as a parameter to the function. After that we perform a normal loop through the routes and try to find a match. There is a variable <i>match</i> which value is <i>null</i> if the regular expression doesn&#39;t match. Otherwise, its value is something like</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">[</span><span class="s2">&quot;products/12/edit/22&quot;</span><span class="p">,</span> <span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;22&quot;</span><span class="p">,</span> <span class="nx">index</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">input</span><span class="o">:</span> <span class="s2">&quot;/products/12/edit/22&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>It is array-like object, which contains the matched string and all remembered substrings. This means that if we <i>shift</i> the first element we will get an array of the dynamic parts. For example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Router</span>
+<span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="sr">/about/</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;about&#39;</span><span class="p">);</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="sr">/products\/(.*)\/edit\/(.*)/</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;products&#39;</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">);</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">check</span><span class="p">(</span><span class="s1">&#39;/products/12/edit/22&#39;</span><span class="p">);</span>
+</code></pre></div>
+<p>This script outputs:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">products</span> <span class="p">[</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;22&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>That is how we could handle dynamic URLs.</p>
+
+<h2>Monitoring for changes</h2>
+
+<p>Of course we can&#39;t run the <i>check</i> method all the time. We need a logic that will notify us for changes in the address bar. Including a click on the <i>back</i> button of the browser. Those of you which play with the History API know that there is a <i>popstate</i> event. It is triggered when the URL is changed. However, I found that some browser dispatch this event on page load. This with some other differences makes me think of another solution. And because I wanted to have monitoring even if the mode is set to <i>hash</i> I decided to use <i>setInterval</i></p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">listen</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">current</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">getFragment</span><span class="p">();</span>
+    <span class="kd">var</span> <span class="nx">fn</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">current</span> <span class="o">!==</span> <span class="nx">self</span><span class="p">.</span><span class="nx">getFragment</span><span class="p">())</span> <span class="p">{</span>
+            <span class="nx">current</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">getFragment</span><span class="p">();</span>
+            <span class="nx">self</span><span class="p">.</span><span class="nx">check</span><span class="p">(</span><span class="nx">current</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="nx">clearInterval</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">interval</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">interval</span> <span class="o">=</span> <span class="nx">setInterval</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="mi">50</span><span class="p">);</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>We need to keep the latest URL, so we are able to compare it to the new one.</p>
+
+<h2>Changing the URL</h2>
+
+<p>In the end, our router needs a function which changes the current address and of course fires the route&#39;s handler.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">navigate</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">path</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">path</span> <span class="o">=</span> <span class="nx">path</span> <span class="o">?</span> <span class="nx">path</span> <span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">mode</span> <span class="o">===</span> <span class="s1">&#39;history&#39;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">history</span><span class="p">.</span><span class="nx">pushState</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">root</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">clearSlashes</span><span class="p">(</span><span class="nx">path</span><span class="p">));</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/#(.*)$/</span><span class="p">);</span>
+        <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/#(.*)$/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;#&#39;</span> <span class="o">+</span> <span class="nx">path</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Again, we are doing different things depending on the <i>mode</i> property. If the History API is available we are using <i>pushState</i>. Otherwise the good old <i>window.location</i> is on the line.</p>
+
+<h2>Final source code</h2>
+
+<p>Here is the finished version of the router with a little example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Router</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">routes</span><span class="o">:</span> <span class="p">[],</span>
+    <span class="nx">mode</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nx">root</span><span class="o">:</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span>
+    <span class="nx">config</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">mode</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">&amp;&amp;</span> <span class="nx">options</span><span class="p">.</span><span class="nx">mode</span> <span class="o">&amp;&amp;</span> <span class="nx">options</span><span class="p">.</span><span class="nx">mode</span> <span class="o">==</span> <span class="s1">&#39;history&#39;</span> 
+                    <span class="o">&amp;&amp;</span> <span class="o">!!</span><span class="p">(</span><span class="nx">history</span><span class="p">.</span><span class="nx">pushState</span><span class="p">)</span> <span class="o">?</span> <span class="s1">&#39;history&#39;</span> <span class="o">:</span> <span class="s1">&#39;hash&#39;</span><span class="p">;</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">root</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">&amp;&amp;</span> <span class="nx">options</span><span class="p">.</span><span class="nx">root</span> <span class="o">?</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">clearSlashes</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">root</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">:</span> <span class="s1">&#39;/&#39;</span><span class="p">;</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">},</span>
+    <span class="nx">getFragment</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">fragment</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">mode</span> <span class="o">===</span> <span class="s1">&#39;history&#39;</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">fragment</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">clearSlashes</span><span class="p">(</span><span class="nb">decodeURI</span><span class="p">(</span><span class="nx">location</span><span class="p">.</span><span class="nx">pathname</span> <span class="o">+</span> <span class="nx">location</span><span class="p">.</span><span class="nx">search</span><span class="p">));</span>
+            <span class="nx">fragment</span> <span class="o">=</span> <span class="nx">fragment</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/\?(.*)$/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">);</span>
+            <span class="nx">fragment</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">root</span> <span class="o">!=</span> <span class="s1">&#39;/&#39;</span> <span class="o">?</span> <span class="nx">fragment</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">root</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">:</span> <span class="nx">fragment</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">match</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/#(.*)$/</span><span class="p">);</span>
+            <span class="nx">fragment</span> <span class="o">=</span> <span class="nx">match</span> <span class="o">?</span> <span class="nx">match</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">clearSlashes</span><span class="p">(</span><span class="nx">fragment</span><span class="p">);</span>
+    <span class="p">},</span>
+    <span class="nx">clearSlashes</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">path</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">path</span><span class="p">.</span><span class="nx">toString</span><span class="p">().</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/\/$/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">).</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/^\//</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">);</span>
+    <span class="p">},</span>
+    <span class="nx">add</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">re</span><span class="p">,</span> <span class="nx">handler</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="k">typeof</span> <span class="nx">re</span> <span class="o">==</span> <span class="s1">&#39;function&#39;</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">handler</span> <span class="o">=</span> <span class="nx">re</span><span class="p">;</span>
+            <span class="nx">re</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">routes</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="nx">re</span><span class="o">:</span> <span class="nx">re</span><span class="p">,</span> <span class="nx">handler</span><span class="o">:</span> <span class="nx">handler</span><span class="p">});</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">},</span>
+    <span class="nx">remove</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">param</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nx">r</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="k">this</span><span class="p">.</span><span class="nx">routes</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span> <span class="nx">r</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">routes</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">handler</span> <span class="o">===</span> <span class="nx">param</span> <span class="o">||</span> <span class="nx">r</span><span class="p">.</span><span class="nx">re</span> <span class="o">===</span> <span class="nx">param</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">routes</span><span class="p">.</span><span class="nx">splice</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span> 
+                <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">},</span>
+    <span class="nx">flush</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">routes</span> <span class="o">=</span> <span class="p">[];</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">mode</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">root</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="p">;</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">},</span>
+    <span class="nx">check</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">fragment</span> <span class="o">=</span> <span class="nx">f</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">getFragment</span><span class="p">();</span>
+        <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="k">this</span><span class="p">.</span><span class="nx">routes</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">match</span> <span class="o">=</span> <span class="nx">fragment</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">routes</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">re</span><span class="p">);</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">match</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">match</span><span class="p">.</span><span class="nx">shift</span><span class="p">();</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">routes</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">handler</span><span class="p">.</span><span class="nx">apply</span><span class="p">({},</span> <span class="nx">match</span><span class="p">);</span>
+                <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+            <span class="p">}</span>            
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">},</span>
+    <span class="nx">listen</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+        <span class="kd">var</span> <span class="nx">current</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">getFragment</span><span class="p">();</span>
+        <span class="kd">var</span> <span class="nx">fn</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">current</span> <span class="o">!==</span> <span class="nx">self</span><span class="p">.</span><span class="nx">getFragment</span><span class="p">())</span> <span class="p">{</span>
+                <span class="nx">current</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">getFragment</span><span class="p">();</span>
+                <span class="nx">self</span><span class="p">.</span><span class="nx">check</span><span class="p">(</span><span class="nx">current</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="nx">clearInterval</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">interval</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">interval</span> <span class="o">=</span> <span class="nx">setInterval</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="mi">50</span><span class="p">);</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">},</span>
+    <span class="nx">navigate</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">path</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">path</span> <span class="o">=</span> <span class="nx">path</span> <span class="o">?</span> <span class="nx">path</span> <span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">mode</span> <span class="o">===</span> <span class="s1">&#39;history&#39;</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">history</span><span class="p">.</span><span class="nx">pushState</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">root</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">clearSlashes</span><span class="p">(</span><span class="nx">path</span><span class="p">));</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/#(.*)$/</span><span class="p">);</span>
+            <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/#(.*)$/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;#&#39;</span> <span class="o">+</span> <span class="nx">path</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// configuration</span>
+<span class="nx">Router</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span> <span class="nx">mode</span><span class="o">:</span> <span class="s1">&#39;history&#39;</span><span class="p">});</span>
+
+<span class="c1">// returning the user to the initial state</span>
+<span class="nx">Router</span><span class="p">.</span><span class="nx">navigate</span><span class="p">();</span>
+
+<span class="c1">// adding routes</span>
+<span class="nx">Router</span>
+<span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="sr">/about/</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;about&#39;</span><span class="p">);</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="sr">/products\/(.*)\/edit\/(.*)/</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;products&#39;</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">);</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">check</span><span class="p">(</span><span class="s1">&#39;/products/12/edit/22&#39;</span><span class="p">).</span><span class="nx">listen</span><span class="p">();</span>
+
+<span class="c1">// forwarding</span>
+<span class="nx">Router</span><span class="p">.</span><span class="nx">navigate</span><span class="p">(</span><span class="s1">&#39;/about&#39;</span><span class="p">);</span>
+</code></pre></div>
+<h2>Summary</h2>
+
+<p>The router is around 90 lines. It supports hash typed URLs and the new History API. It could be helpful if you do not want to use the whole framework only because of the routing capabilities. </p>
+
+<p>This class is part of <a href="http://absurdjs.com/">AbsurdJS</a> library. Checkout the documentation page of the class <a href="http://absurdjs.com/pages/api/build-in-components/#router">here</a>.</p>
+
+<p>This article was originally published at <a href="http://krasimirtsonev.com/blog/article/A-modern-JavaScript-router-in-100-lines-history-api-pushState-hash-url">krasimirtsonev.com</a>.</p>
+
+</div>
+
+<div>
+  <ul class="share-buttons">
+    <li>
+      <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fblog.webbox.io&t=" target="_blank" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(document.URL) + '&t=' + encodeURIComponent(document.URL)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-facebook  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="https://twitter.com/intent/tweet?source=http%3A%2F%2Fblog.webbox.io&text=: http%3A%2F%2Fblog.webbox.io&via=webboxio" target="_blank" title="Tweet" onclick="window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(document.title) + ': '  + encodeURIComponent(document.URL)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-twitter  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="https://getpocket.com/save?url=http%3A%2F%2Fblog.webbox.io&title=" target="_blank" title="Add to Pocket" onclick="window.open('https://getpocket.com/save?url=' + encodeURIComponent(document.URL) + '&title=' +  encodeURIComponent(document.title)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-chevron-circle-down  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="http://www.reddit.com/submit?url=http%3A%2F%2Fblog.webbox.io&title=" target="_blank" title="Submit to Reddit" onclick="window.open('http://www.reddit.com/submit?url=' + encodeURIComponent(document.URL) + '&title=' +  encodeURIComponent(document.title)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-reddit  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="http://wordpress.com/press-this.php?u=http%3A%2F%2Fblog.webbox.io&t=&s=" target="_blank" title="Publish on WordPress" onclick="window.open('http://wordpress.com/press-this.php?u=' + encodeURIComponent(document.URL) + '&t=' +  encodeURIComponent(document.title)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-wordpress  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+
+
+<div class="related">
+    <h2>Related Posts</h2>
+    <ul class="related-posts">
+    
+    <li>
+        <h3>
+            <a href="/2015/03/06/ruby-argument-references/">Ruby argument references<br/>
+                <small>06 March 2015</small>
+                <small>&mdash; by Uğur Özyılmazel</small>
+            </a>
+        </h3>
+      </li>
+    
+    <li>
+        <h3>
+            <a href="/2014/11/26/unit-test-your-client-side-javascript/">Unit test your client-side JavaScript<br/>
+                <small>26 November 2014</small>
+                <small>&mdash; by Krasimir Tsonev</small>
+            </a>
+        </h3>
+      </li>
+    
+    <li>
+        <h3>
+            <a href="/2014/10/03/how-to-fix-shellshock-on-ubuntu/">How to fix Shellshock on Ubuntu<br/>
+                <small>03 October 2014</small>
+                <small>&mdash; by Uğur Özyılmazel</small>
+            </a>
+        </h3>
+      </li>
+    
+  </ul>
+</div>
+
+
+<div>
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+    */
+    /*
+    var disqus_config = function () {
+    this.page.url = PAGE_URL; // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+
+    s.src = '//webboxioblog.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+
+
+    </div>
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-6463685-30', 'auto');
+      ga('send', 'pageview');
+    </script>
+    <script id="dsq-count-scr" src="//webboxioblog.disqus.com/count.js" async></script>
+    
+  </body>
+</html>

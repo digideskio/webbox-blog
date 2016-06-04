@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+      Dependency injection in JavaScript &middot; webBox.io
+    
+  </title>
+  
+  
+  
+  
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/poole.css">
+  <link rel="stylesheet" href="/public/css/syntax.css">
+  <link rel="stylesheet" href="/public/css/hyde.css">
+  <link rel="stylesheet" href="/public/css/site.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
+  
+  <!-- Icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/public/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/public/favicon.ico">
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+  <meta property="og:title" content="webBox.io &middot; Blog Post : Dependency injection in JavaScript">
+  <meta property="og:url" content="http://blog.webbox.io/2014/07/08/dependency-injection/">
+  <meta property="og:site_name" content="webBox.io">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="http://blog.webbox.io/assets/opengraph.png">
+  <meta property="og:description" content="Sooner or later you need to use abstractions made by other developers.You depend on someone&#39;s other code. I like the dependency-free modules,but that&#39;s kinda difficult to achieve.Even if you create those nice black-box liked components you still have apart which combines everything. That&#39;s where the dependency injectionplaced in.">
+</head>
+
+
+  <body>
+
+    <div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <h1>
+        <a href="/">
+          webBox.io
+        </a>
+      </h1>
+      <p class="lead">We reveal the secret sauce recipes inside the magical blue box.</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="sidebar-nav-item" href="/">Blog Home</a>
+
+      
+
+      
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+          
+        
+      
+        
+          
+        
+      
+
+      <p>
+        <a title="Official Website" href="http://webbox.io"><i class="fa fa-home "></i></a>
+        <a title="GitHub Organization" href="https://github.com/webboxio"><i class="fa fa-github "></i></a>
+        <a title="Official Twitter Account" href="https://twitter.com/webboxio"><i class="fa fa-twitter "></i></a>
+        <a title="Official Facebook Page" href="https://www.facebook.com/webbox.io"><i class="fa fa-facebook "></i></a>
+      </p>
+    </nav>
+
+   <p>&copy; 2016. All rights reserved.</p>
+  </div>
+</div>
+
+
+    <div class="content container">
+      <div class="post">
+    <h1 class="post-title">Dependency injection in JavaScript</h1>
+    <div class="post-meta">
+        <span class="post-date">08 July 2014</span>
+        
+            <span class="post-writer">
+                &mdash; by
+                
+                    <a target="_blank" href="https://twitter.com/KrasimirTsonev">Krasimir Tsonev</a>
+                
+            </span>
+        
+    </div>
+
+    
+        <div class="post-abstract">
+            <p>Sooner or later you need to use abstractions made by other developers.
+You depend on someone&#39;s other code. I like the dependency-free modules,
+but that&#39;s kinda difficult to achieve.</p>
+
+<p>Even if you create those nice black-box liked components you still have a
+part which combines everything. That&#39;s where the dependency injection
+placed in.</p>
+
+        </div>
+    
+    <p>I like the quote that the programming is all about managing complexity. Maybe you&#39;ve heard that the computer world is a giant construction of abstractions. We simply wrap things and produce new tools over and over again. Just think for a minute. The languages which you use have build-in functionalities and they are probably abstracted functions of other low level operations. It&#39;s the same with JavaScript.</p>
+
+<p>Sooner or later you need to use abstractions made by other developers. I.e. you depend on someone&#39;s other code. I like the dependency-free modules, but that&#39;s kinda difficult to achieve. Even if you create those nice black-box liked components you still have a part which combines everything. That&#39;s where the dependency injection placed in. The ability to manage the dependencies effectively is absolutely necessary nowadays. This articles sums up my observations on the problem.</p>
+
+<h2>The goal</h2>
+
+<p>Let&#39;s say that we have two modules. The first one is a service which makes Ajax requests and the second one is a router.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">service</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Service&#39;</span> <span class="p">};</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="nx">router</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Router&#39;</span> <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>We have another function which needs these modules.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">doSomething</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">other</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">s</span> <span class="o">=</span> <span class="nx">service</span><span class="p">();</span>
+    <span class="kd">var</span> <span class="nx">r</span> <span class="o">=</span> <span class="nx">router</span><span class="p">();</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>And to make the things a little bit more interesting the function needs to accept one more parameter. Sure, we could use the above code, but that&#39;s not really flexible. What if we want to use <code>ServiceXML</code> or <code>ServiceJSON</code>. Or what if we want to mockup some of the modules for testing purposes. We can&#39;t just edit the body of the function. The first thing which we all come up with is to pass the dependencies as parameters to the function. I.e.:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">doSomething</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">service</span><span class="p">,</span> <span class="nx">router</span><span class="p">,</span> <span class="nx">other</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">s</span> <span class="o">=</span> <span class="nx">service</span><span class="p">();</span>
+    <span class="kd">var</span> <span class="nx">r</span> <span class="o">=</span> <span class="nx">router</span><span class="p">();</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>By doing this we are passing the exact implementation of the module which we want. However this brings a new problem. Imagine if we have <code>doSomething</code> all over our code. What will happen if we need a third dependency. We can&#39;t edit all the function&#39;s calls. So, we need an instrument which will do that for us. That&#39;s what dependency injectors are trying to solve. Let&#39;s write down few goals which we want to achieve:</p>
+
+<ul>
+<li>we should be able to register dependencies</li>
+<li>the injector should accept a function and should return a function which somehow gets the needed resources</li>
+<li>we should not write a lot, we need short and nice syntax</li>
+<li>the injector should keep the scope of the passed function</li>
+<li>the passed function should be able to accept custom arguments, not only the described dependencies</li>
+</ul>
+
+<p>A nice list isn&#39;t it. Let&#39;s dive in.</p>
+
+<h2>The <a href="http://requirejs.org/">requirejs</a> / <a href="http://requirejs.org/docs/whyamd.html">AMD</a> approach</h2>
+
+<p>You probably already know about <a href="http://requirejs.org/">requirejs</a>. It&#39;s a nice variant for solving dependencies.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">define</span><span class="p">([</span><span class="s1">&#39;service&#39;</span><span class="p">,</span> <span class="s1">&#39;router&#39;</span><span class="p">],</span> <span class="kd">function</span><span class="p">(</span><span class="nx">service</span><span class="p">,</span> <span class="nx">router</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>The idea is firstly to describe the needed dependencies and then write your function. The order of the arguments is of course important here. Let&#39;s say that we will write a module called <code>injector</code> which will accept the same syntax.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">doSomething</span> <span class="o">=</span> <span class="nx">injector</span><span class="p">.</span><span class="nx">resolve</span><span class="p">([</span><span class="s1">&#39;service&#39;</span><span class="p">,</span> <span class="s1">&#39;router&#39;</span><span class="p">],</span> <span class="kd">function</span><span class="p">(</span><span class="nx">service</span><span class="p">,</span> <span class="nx">router</span><span class="p">,</span> <span class="nx">other</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">service</span><span class="p">().</span><span class="nx">name</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">(</span><span class="s1">&#39;Service&#39;</span><span class="p">);</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">router</span><span class="p">().</span><span class="nx">name</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">(</span><span class="s1">&#39;Router&#39;</span><span class="p">);</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">other</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">(</span><span class="s1">&#39;Other&#39;</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="nx">doSomething</span><span class="p">(</span><span class="s2">&quot;Other&quot;</span><span class="p">);</span>
+</code></pre></div>
+<p><i>Before to continue I should clarify the body of the <code>doSomething</code> function. I&#39;m using <a href="https://github.com/LearnBoost/expect.js">expect.js</a> as a assertion library just to be sure that the code which I&#39;m writing works as I want. A little bit TDD approach.</i></p>
+
+<p>Here is what our <code>injector</code> module starts from. It&#39;s good to be a singleton, so it does its job from different parts of our application.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">injector</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">dependencies</span><span class="o">:</span> <span class="p">{},</span>
+    <span class="nx">register</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">dependencies</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span><span class="p">;</span>
+    <span class="p">},</span>
+    <span class="nx">resolve</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">deps</span><span class="p">,</span> <span class="nx">func</span><span class="p">,</span> <span class="nx">scope</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Really simple object which has two functions and one variable which acts as a storage. What we have to do is to checks the <code>deps</code> array and search for answers in the <code>dependencies</code> variable. The rest is just calling the <code>.apply</code> method against the past <code>func</code> parameter.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">resolve</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">deps</span><span class="p">,</span> <span class="nx">func</span><span class="p">,</span> <span class="nx">scope</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">args</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="nx">deps</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span> <span class="nx">d</span><span class="o">=</span><span class="nx">deps</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">dependencies</span><span class="p">[</span><span class="nx">d</span><span class="p">])</span> <span class="p">{</span>
+            <span class="nx">args</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">dependencies</span><span class="p">[</span><span class="nx">d</span><span class="p">]);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Can\&#39;t resolve &#39;</span> <span class="o">+</span> <span class="nx">d</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">func</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">scope</span> <span class="o">||</span> <span class="p">{},</span> <span class="nx">args</span><span class="p">.</span><span class="nx">concat</span><span class="p">(</span><span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">,</span> <span class="mi">0</span><span class="p">)));</span>
+    <span class="p">}</span>        
+<span class="p">}</span>
+</code></pre></div>
+<p>If there is any scope it is effectively used. <code>Array.prototype.slice.call(arguments, 0)</code> is necessary to transform the <code>arguments</code> variable to an actually array. So far so good. Our test passes. The problem with this implementation is that we have to write the needed components twice and we can&#39;t really mix their order. The additional custom parameters are always after the dependencies.</p>
+
+<h2>The reflection approach</h2>
+
+<p>According to Wikipedia <em>reflection</em> is the ability of a program to examine and modify the structure and behaviour of an object at runtime. With simple words, in the context of JavaScript, that&#39;s reading the source code of an object or function and analyzing it. Let&#39;s get our <code>doSomething</code> function from the beginning. If you log <code>doSomething.toString()</code> you will get the following string:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="s2">&quot;function (service, router, other) {</span>
+<span class="s2">    var s = service();</span>
+<span class="s2">    var r = router();</span>
+<span class="s2">}&quot;</span>
+</code></pre></div>
+<p>Having the method as a string gives us the ability to fetch the expected parameters. And, which is more important, their names. That&#39;s what <a href="http://angularjs.org/">Angular</a> uses for its dependency injection implementation. I cheated a bit and got the regular expression which exports the arguments directly from the Angular&#39;s code.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="sr">/^function\s*[^\(]*\(\s*([^\)]*)\)/m</span>
+</code></pre></div>
+<p>We could change the <code>resolve</code> class to the following:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">resolve</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">func</span><span class="p">,</span> <span class="nx">deps</span><span class="p">,</span> <span class="nx">scope</span><span class="p">,</span> <span class="nx">args</span> <span class="o">=</span> <span class="p">[],</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+    <span class="nx">func</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+    <span class="nx">deps</span> <span class="o">=</span> <span class="nx">func</span><span class="p">.</span><span class="nx">toString</span><span class="p">().</span><span class="nx">match</span><span class="p">(</span><span class="sr">/^function\s*[^\(]*\(\s*([^\)]*)\)/m</span><span class="p">)[</span><span class="mi">1</span><span class="p">].</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/ /g</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">).</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">);</span>
+    <span class="nx">scope</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">||</span> <span class="p">{};</span>
+    <span class="k">return</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="nx">deps</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">d</span> <span class="o">=</span> <span class="nx">deps</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+            <span class="nx">args</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">dependencies</span><span class="p">[</span><span class="nx">d</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">d</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="o">?</span> <span class="nx">self</span><span class="p">.</span><span class="nx">dependencies</span><span class="p">[</span><span class="nx">d</span><span class="p">]</span> <span class="o">:</span> <span class="nx">a</span><span class="p">.</span><span class="nx">shift</span><span class="p">());</span>
+        <span class="p">}</span>
+        <span class="nx">func</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">scope</span> <span class="o">||</span> <span class="p">{},</span> <span class="nx">args</span><span class="p">);</span>
+    <span class="p">}</span>        
+<span class="p">}</span>
+</code></pre></div>
+<p>We run the RegExp against the function&#39;s definition. The result is:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">[</span><span class="s2">&quot;function (service, router, other)&quot;</span><span class="p">,</span> <span class="s2">&quot;service, router, other&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>So, we need only the second item. Once we clean up the empty spaces and split the string we got the <code>deps</code> array filled. There is one more change:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">...</span>
+<span class="nx">args</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">dependencies</span><span class="p">[</span><span class="nx">d</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">d</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="o">?</span> <span class="nx">self</span><span class="p">.</span><span class="nx">dependencies</span><span class="p">[</span><span class="nx">d</span><span class="p">]</span> <span class="o">:</span> <span class="nx">a</span><span class="p">.</span><span class="nx">shift</span><span class="p">());</span>
+</code></pre></div>
+<p>We are looping through the dependencies and if there is something missing we are trying to fetch it from the <code>arguments</code> object. Thankfully the <code>shift</code> method returns simply <code>undefined</code> if the array is empty. It&#39;s not throwing an error. The new version of the <code>injector</code> could be used like that:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">doSomething</span> <span class="o">=</span> <span class="nx">injector</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">service</span><span class="p">,</span> <span class="nx">other</span><span class="p">,</span> <span class="nx">router</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">service</span><span class="p">().</span><span class="nx">name</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">(</span><span class="s1">&#39;Service&#39;</span><span class="p">);</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">router</span><span class="p">().</span><span class="nx">name</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">(</span><span class="s1">&#39;Router&#39;</span><span class="p">);</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">other</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">(</span><span class="s1">&#39;Other&#39;</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="nx">doSomething</span><span class="p">(</span><span class="s2">&quot;Other&quot;</span><span class="p">);</span>
+</code></pre></div>
+<p>No double writing of the dependencies and we could mix their order. It still works and we replicated the Angular&#39;s magic.</p>
+
+<p>However, the world is not perfect and there is one very big problem with that reflection type of injection. The minification will break our logic. That&#39;s because it changes the names of the parameters and we will not be able to resolve the dependencies. For example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">doSomething</span><span class="o">=</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">,</span><span class="nx">t</span><span class="p">,</span><span class="nx">n</span><span class="p">){</span><span class="kd">var</span> <span class="nx">r</span><span class="o">=</span><span class="nx">e</span><span class="p">();</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="nx">t</span><span class="p">()}</span>
+</code></pre></div>
+<p>That&#39;s our <code>doSomething</code> function passed to a compressor. The solution proposed by Angular&#39;s team looks like that:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">doSomething</span> <span class="o">=</span> <span class="nx">injector</span><span class="p">.</span><span class="nx">resolve</span><span class="p">([</span><span class="s1">&#39;service&#39;</span><span class="p">,</span> <span class="s1">&#39;router&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">service</span><span class="p">,</span> <span class="nx">router</span><span class="p">)</span> <span class="p">{</span>
+
+<span class="p">}]);</span>
+</code></pre></div>
+<p>It looks like the thing which we started with. I personally wasn&#39;t able to find a better solution, and decided to mix the two approaches. Here is the final version of the injector.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">injector</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">dependencies</span><span class="o">:</span> <span class="p">{},</span>
+    <span class="nx">register</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">dependencies</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span><span class="p">;</span>
+    <span class="p">},</span>
+    <span class="nx">resolve</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">func</span><span class="p">,</span> <span class="nx">deps</span><span class="p">,</span> <span class="nx">scope</span><span class="p">,</span> <span class="nx">args</span> <span class="o">=</span> <span class="p">[],</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="k">typeof</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">===</span> <span class="s1">&#39;string&#39;</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">func</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+            <span class="nx">deps</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/ /g</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">).</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">);</span>
+            <span class="nx">scope</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">||</span> <span class="p">{};</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">func</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+            <span class="nx">deps</span> <span class="o">=</span> <span class="nx">func</span><span class="p">.</span><span class="nx">toString</span><span class="p">().</span><span class="nx">match</span><span class="p">(</span><span class="sr">/^function\s*[^\(]*\(\s*([^\)]*)\)/m</span><span class="p">)[</span><span class="mi">1</span><span class="p">].</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/ /g</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">).</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">);</span>
+            <span class="nx">scope</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">||</span> <span class="p">{};</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+            <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="nx">deps</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                <span class="kd">var</span> <span class="nx">d</span> <span class="o">=</span> <span class="nx">deps</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+                <span class="nx">args</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">dependencies</span><span class="p">[</span><span class="nx">d</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">d</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="o">?</span> <span class="nx">self</span><span class="p">.</span><span class="nx">dependencies</span><span class="p">[</span><span class="nx">d</span><span class="p">]</span> <span class="o">:</span> <span class="nx">a</span><span class="p">.</span><span class="nx">shift</span><span class="p">());</span>
+            <span class="p">}</span>
+            <span class="nx">func</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">scope</span> <span class="o">||</span> <span class="p">{},</span> <span class="nx">args</span><span class="p">);</span>
+        <span class="p">}</span>        
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The <code>resolve</code> method accepts two or three parameters. If they are two it acts like we wrote it lately. However, if there are three arguments it gets the first one, parse it and fills the <code>deps</code> array. Here is the test case:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">doSomething</span> <span class="o">=</span> <span class="nx">injector</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;router,,service&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">a</span><span class="p">().</span><span class="nx">name</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">(</span><span class="s1">&#39;Router&#39;</span><span class="p">);</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">b</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">(</span><span class="s1">&#39;Other&#39;</span><span class="p">);</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">c</span><span class="p">().</span><span class="nx">name</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">(</span><span class="s1">&#39;Service&#39;</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="nx">doSomething</span><span class="p">(</span><span class="s2">&quot;Other&quot;</span><span class="p">);</span>
+</code></pre></div>
+<p>You will probably notice that there are two commas one after each other. That&#39;s not a typo. The empty value actually represents the <code>&quot;Other&quot;</code> parameter. That&#39;s how we will be able to control the order of the parameters.</p>
+
+<h2>Injection directly into the scope</h2>
+
+<p>Sometimes I&#39;m using a third variant of injection. It involves a manipulation of the function&#39;s scope (or with other words, the <code>this</code> object). So, it is not always appropriate.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">injector</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">dependencies</span><span class="o">:</span> <span class="p">{},</span>
+    <span class="nx">register</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">dependencies</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span><span class="p">;</span>
+    <span class="p">},</span>
+    <span class="nx">resolve</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">deps</span><span class="p">,</span> <span class="nx">func</span><span class="p">,</span> <span class="nx">scope</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">args</span> <span class="o">=</span> <span class="p">[];</span>
+        <span class="nx">scope</span> <span class="o">=</span> <span class="nx">scope</span> <span class="o">||</span> <span class="p">{};</span>
+        <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="nx">deps</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span> <span class="nx">d</span><span class="o">=</span><span class="nx">deps</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">dependencies</span><span class="p">[</span><span class="nx">d</span><span class="p">])</span> <span class="p">{</span>
+                <span class="nx">scope</span><span class="p">[</span><span class="nx">d</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">dependencies</span><span class="p">[</span><span class="nx">d</span><span class="p">];</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Can\&#39;t resolve &#39;</span> <span class="o">+</span> <span class="nx">d</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">func</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">scope</span> <span class="o">||</span> <span class="p">{},</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+        <span class="p">}</span>        
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>All we do is to attach the dependencies to the scope. The benefits here are that the developer should not write the dependencies as parameters. They are just part of the function&#39;s scope.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">doSomething</span> <span class="o">=</span> <span class="nx">injector</span><span class="p">.</span><span class="nx">resolve</span><span class="p">([</span><span class="s1">&#39;service&#39;</span><span class="p">,</span> <span class="s1">&#39;router&#39;</span><span class="p">],</span> <span class="kd">function</span><span class="p">(</span><span class="nx">other</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">service</span><span class="p">().</span><span class="nx">name</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">(</span><span class="s1">&#39;Service&#39;</span><span class="p">);</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">router</span><span class="p">().</span><span class="nx">name</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">(</span><span class="s1">&#39;Router&#39;</span><span class="p">);</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">other</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">(</span><span class="s1">&#39;Other&#39;</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="nx">doSomething</span><span class="p">(</span><span class="s2">&quot;Other&quot;</span><span class="p">);</span>
+</code></pre></div>
+<h2>Final words</h2>
+
+<p>The dependency injection is one of those things which we all do, but never think of. Even if you didn&#39;t hear about the term you probably use it million of times. </p>
+
+<p>All the examples mentioned in this article could be seen <a href="https://github.com/krasimir/blog-posts/tree/master/JavaScriptDependencyInjection">here</a>.</p>
+
+<p>This article was originally published at <a href="http://krasimirtsonev.com/blog/article/Dependency-injection-in-JavaScript">krasimirtsonev.com</a>.</p>
+
+</div>
+
+<div>
+  <ul class="share-buttons">
+    <li>
+      <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fblog.webbox.io&t=" target="_blank" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(document.URL) + '&t=' + encodeURIComponent(document.URL)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-facebook  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="https://twitter.com/intent/tweet?source=http%3A%2F%2Fblog.webbox.io&text=: http%3A%2F%2Fblog.webbox.io&via=webboxio" target="_blank" title="Tweet" onclick="window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(document.title) + ': '  + encodeURIComponent(document.URL)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-twitter  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="https://getpocket.com/save?url=http%3A%2F%2Fblog.webbox.io&title=" target="_blank" title="Add to Pocket" onclick="window.open('https://getpocket.com/save?url=' + encodeURIComponent(document.URL) + '&title=' +  encodeURIComponent(document.title)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-chevron-circle-down  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="http://www.reddit.com/submit?url=http%3A%2F%2Fblog.webbox.io&title=" target="_blank" title="Submit to Reddit" onclick="window.open('http://www.reddit.com/submit?url=' + encodeURIComponent(document.URL) + '&title=' +  encodeURIComponent(document.title)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-reddit  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="http://wordpress.com/press-this.php?u=http%3A%2F%2Fblog.webbox.io&t=&s=" target="_blank" title="Publish on WordPress" onclick="window.open('http://wordpress.com/press-this.php?u=' + encodeURIComponent(document.URL) + '&t=' +  encodeURIComponent(document.title)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-wordpress  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+
+
+<div class="related">
+    <h2>Related Posts</h2>
+    <ul class="related-posts">
+    
+    <li>
+        <h3>
+            <a href="/2015/03/06/ruby-argument-references/">Ruby argument references<br/>
+                <small>06 March 2015</small>
+                <small>&mdash; by Uğur Özyılmazel</small>
+            </a>
+        </h3>
+      </li>
+    
+    <li>
+        <h3>
+            <a href="/2014/11/26/unit-test-your-client-side-javascript/">Unit test your client-side JavaScript<br/>
+                <small>26 November 2014</small>
+                <small>&mdash; by Krasimir Tsonev</small>
+            </a>
+        </h3>
+      </li>
+    
+    <li>
+        <h3>
+            <a href="/2014/10/03/how-to-fix-shellshock-on-ubuntu/">How to fix Shellshock on Ubuntu<br/>
+                <small>03 October 2014</small>
+                <small>&mdash; by Uğur Özyılmazel</small>
+            </a>
+        </h3>
+      </li>
+    
+  </ul>
+</div>
+
+
+<div>
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+    */
+    /*
+    var disqus_config = function () {
+    this.page.url = PAGE_URL; // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+
+    s.src = '//webboxioblog.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+
+
+    </div>
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-6463685-30', 'auto');
+      ga('send', 'pageview');
+    </script>
+    <script id="dsq-count-scr" src="//webboxioblog.disqus.com/count.js" async></script>
+    
+  </body>
+</html>

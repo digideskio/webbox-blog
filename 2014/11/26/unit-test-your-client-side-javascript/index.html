@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+      Unit test your client-side JavaScript &middot; webBox.io
+    
+  </title>
+  
+  
+  
+  
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/poole.css">
+  <link rel="stylesheet" href="/public/css/syntax.css">
+  <link rel="stylesheet" href="/public/css/hyde.css">
+  <link rel="stylesheet" href="/public/css/site.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
+  
+  <!-- Icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/public/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/public/favicon.ico">
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+  <meta property="og:title" content="webBox.io &middot; Blog Post : Unit test your client-side JavaScript">
+  <meta property="og:url" content="http://blog.webbox.io/2014/11/26/unit-test-your-client-side-javascript/">
+  <meta property="og:site_name" content="webBox.io">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="http://blog.webbox.io/assets/opengraph.png">
+  <meta property="og:description" content="I don&#39;t think that we have to discuss the importance of having tests. That&#39;s not something that we add to the project in addition. That&#39;s something that the project is based on. And because testing is so important we have bunch of tools in our disposal.We all know (I hope) how to test our back-end code. However, once we move to the front-end is a bit different. At the moment [we](http://trialreach.com/) are working on a big single page application and testing is one of our main focuses. In this article you will see how to unit test our client-side JavaScript.">
+</head>
+
+
+  <body>
+
+    <div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <h1>
+        <a href="/">
+          webBox.io
+        </a>
+      </h1>
+      <p class="lead">We reveal the secret sauce recipes inside the magical blue box.</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="sidebar-nav-item" href="/">Blog Home</a>
+
+      
+
+      
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+          
+        
+      
+        
+          
+        
+      
+
+      <p>
+        <a title="Official Website" href="http://webbox.io"><i class="fa fa-home "></i></a>
+        <a title="GitHub Organization" href="https://github.com/webboxio"><i class="fa fa-github "></i></a>
+        <a title="Official Twitter Account" href="https://twitter.com/webboxio"><i class="fa fa-twitter "></i></a>
+        <a title="Official Facebook Page" href="https://www.facebook.com/webbox.io"><i class="fa fa-facebook "></i></a>
+      </p>
+    </nav>
+
+   <p>&copy; 2016. All rights reserved.</p>
+  </div>
+</div>
+
+
+    <div class="content container">
+      <div class="post">
+    <h1 class="post-title">Unit test your client-side JavaScript</h1>
+    <div class="post-meta">
+        <span class="post-date">26 November 2014</span>
+        
+            <span class="post-writer">
+                &mdash; by
+                
+                    <a target="_blank" href="https://twitter.com/KrasimirTsonev">Krasimir Tsonev</a>
+                
+            </span>
+        
+    </div>
+
+    
+        <div class="post-abstract">
+            <p>I don&#39;t think that we have to discuss the importance of having tests. That&#39;s not something that we add to the project in addition. That&#39;s something that the project is based on. And because testing is so important we have bunch of tools in our disposal.</p>
+
+<p>We all know (I hope) how to test our back-end code. However, once we move to the front-end is a bit different. At the moment <a href="http://trialreach.com/">we</a> are working on a big single page application and testing is one of our main focuses. In this article you will see how to unit test our client-side JavaScript.</p>
+
+        </div>
+    
+    <p>I don&#39;t think that we have to discuss the importance of having tests.
+That&#39;s not something that we add to the project in addition. That&#39;s something
+that the project is based on.</p>
+
+<p>And because testing is so important we have bunch of tools in our disposal.
+We all know (I hope) how to test our back-end code.</p>
+
+<p>However, once we move to the front-end is a bit different. At the moment 
+<a href="http://trialreach.com/">we</a> are working on a big single page application and 
+testing is one of our main focuses.</p>
+
+<p>In this article you will see how to unit test our client-side JavaScript. </p>
+
+<h2>The example</h2>
+
+<p>In order to illustrate the problem and its solution we will create a simple <a href="https://angularjs.org/">AngularJS</a> application. AngularJS because it is a popular framework and probably you are familiar with it. Originally the concepts described in this article were applied to a project that uses <a href="http://www.ractivejs.org/">Ractive.js</a> but it works for AngularJS and it will probably work for <a href="http://emberjs.com/">Ember.js</a> or <a href="http://backbonejs.org/">Backbone.js</a>.</p>
+
+<p>Let&#39;s say that we have a menu and the last link there shows a form for registering a new user. The fields in the form have some validation mechanisms. The are mandatory and have requirements for a minimum number of letters. Overall the example looks like that:</p>
+
+<p><img src="/assets/post_images/unittestclientside/app.gif" alt="Unit test your client-side JavaScript"></p>
+
+<p>We have a placeholder below the form that shows an error message.</p>
+
+<p>Here is the code that we start with:</p>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="cp">&lt;!doctype html&gt;</span>
+<span class="nt">&lt;html</span> <span class="na">ng-app=</span><span class="s">&quot;app&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">href=</span><span class="s">&quot;./css/styles.css&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;./vendor/angular.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span>
+
+      <span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;app&#39;</span><span class="p">,</span> <span class="p">[])</span>
+      <span class="p">.</span><span class="nx">controller</span><span class="p">(</span><span class="s1">&#39;Controller&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$scope</span><span class="p">)</span> <span class="p">{})</span>
+      <span class="p">.</span><span class="nx">directive</span><span class="p">(</span><span class="s1">&#39;registerForm&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="p">...</span>
+      <span class="p">})</span>
+      <span class="p">.</span><span class="nx">directive</span><span class="p">(</span><span class="s1">&#39;appHeader&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="p">...</span>
+      <span class="p">});</span>
+
+    <span class="nt">&lt;/script&gt;</span>
+  <span class="nt">&lt;/head&gt;</span>
+  <span class="nt">&lt;body&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">ng-controller=</span><span class="s">&quot;Controller&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;app-header&gt;&lt;/app-header&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div>
+<p>In AngularJS we have something called <em>directive</em>. Shortly, we may use this to encapsulate logic. That logic may be represented by a custom tag that we add to the page. <em>appHeader</em> directive displays the menu that we saw on the animated GIF above. Here is the implementation:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">directive</span><span class="p">(</span><span class="s1">&#39;appHeader&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">link</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">scope</span><span class="p">.</span><span class="nx">showRegisterForm</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">element</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s1">&#39;register-form&#39;</span><span class="p">).</span><span class="nx">css</span><span class="p">({</span>
+        <span class="nx">display</span><span class="o">:</span> <span class="s1">&#39;block&#39;</span>
+      <span class="p">})</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="p">{</span>
+    <span class="nx">restrict</span><span class="o">:</span> <span class="s1">&#39;E&#39;</span><span class="p">,</span>
+    <span class="nx">template</span><span class="o">:</span> <span class="s1">&#39;\</span>
+<span class="s1">      &lt;header&gt;\</span>
+<span class="s1">        &lt;ul&gt;\</span>
+<span class="s1">          &lt;li&gt;&lt;a href=&quot;#&quot;&gt;Fake button&lt;/a&gt;&lt;/li&gt;\</span>
+<span class="s1">          &lt;li&gt;&lt;a href=&quot;#&quot;&gt;Another fake button&lt;/a&gt;&lt;/li&gt;\</span>
+<span class="s1">          &lt;li&gt;&lt;a href=&quot;#&quot; ng-click=&quot;showRegisterForm()&quot;&gt;Register&lt;/a&gt;&lt;/li&gt;\</span>
+<span class="s1">        &lt;/ul&gt;\</span>
+<span class="s1">        &lt;register-form class=&quot;register-form&quot; /&gt;\</span>
+<span class="s1">      &lt;/header&gt;\</span>
+<span class="s1">    &#39;</span><span class="p">,</span>
+    <span class="nx">link</span><span class="o">:</span> <span class="nx">link</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>We define the markup directly into the JavaScript code which is not the best approach for dealing with templates. However, to simplify the example we will use this technique. Here we see the <code>&lt;register-form&gt;</code> tag that represents the form with the input fields.</p>
+
+<p>The <code>registerForm</code> directive contains the fields&#39; validation. Again, the template is placed directly inside the directive&#39;s definition:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">.</span><span class="nx">directive</span><span class="p">(</span><span class="s1">&#39;registerForm&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">{</span>
+    <span class="nx">restrict</span><span class="o">:</span> <span class="s1">&#39;E&#39;</span><span class="p">,</span>
+    <span class="nx">template</span><span class="o">:</span> <span class="s1">&#39;\</span>
+<span class="s1">      &lt;form&gt;\</span>
+<span class="s1">        &lt;p&gt;Please fill the form below&lt;/p&gt;\</span>
+<span class="s1">        &lt;label for=&quot;username&quot;&gt;Your name&lt;/label&gt;\</span>
+<span class="s1">        &lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;username&quot; ng-model=&quot;username&quot; /&gt;\</span>
+<span class="s1">        &lt;label for=&quot;username&quot;&gt;Password&lt;/label&gt;\</span>
+<span class="s1">        &lt;input type=&quot;password&quot; name=&quot;password&quot; id=&quot;password&quot; ng-model=&quot;password&quot;/&gt;\</span>
+<span class="s1">        &lt;br /&gt;\</span>
+<span class="s1">        &lt;input type=&quot;button&quot; value=&quot;register&quot; ng-click=&quot;register()&quot; id=&quot;register-button&quot; /&gt;\</span>
+<span class="s1">        &lt;br /&gt;\</span>
+<span class="s1">        &lt;span id=&quot;message&quot;&gt;&lt;/span&gt;\</span>
+<span class="s1">      &lt;/form&gt;\</span>
+<span class="s1">    &#39;</span><span class="p">,</span>
+    <span class="nx">controller</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$scope</span><span class="p">)</span> <span class="p">{</span>      
+      <span class="kd">var</span> <span class="nx">validateInput</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">u</span> <span class="o">=</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">username</span><span class="p">;</span>
+        <span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">password</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">u</span> <span class="o">===</span> <span class="s1">&#39;&#39;</span> <span class="o">||</span> <span class="nx">u</span> <span class="o">===</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="p">{</span> <span class="nx">status</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span> <span class="nx">message</span><span class="o">:</span> <span class="s1">&#39;Missing username.&#39;</span><span class="p">}</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">p</span> <span class="o">===</span> <span class="s1">&#39;&#39;</span> <span class="o">||</span> <span class="nx">p</span> <span class="o">===</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="p">{</span> <span class="nx">status</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span> <span class="nx">message</span><span class="o">:</span> <span class="s1">&#39;Missing password.&#39;</span><span class="p">}</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">u</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="p">{</span> <span class="nx">status</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span> <span class="nx">message</span><span class="o">:</span> <span class="s1">&#39;Too short username.&#39;</span><span class="p">}</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="p">{</span> <span class="nx">status</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span> <span class="nx">message</span><span class="o">:</span> <span class="s1">&#39;Too short password.&#39;</span><span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span> <span class="nx">status</span><span class="o">:</span> <span class="kc">true</span> <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="nx">$scope</span><span class="p">.</span><span class="nx">register</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">isValid</span> <span class="o">=</span> <span class="nx">validateInput</span><span class="p">();</span>
+        <span class="k">if</span><span class="p">(</span><span class="kc">false</span> <span class="o">===</span> <span class="nx">isValid</span><span class="p">.</span><span class="nx">status</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">$scope</span><span class="p">.</span><span class="nx">message</span> <span class="o">=</span> <span class="nx">isValid</span><span class="p">.</span><span class="nx">message</span><span class="p">;</span>
+          <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="nx">$scope</span><span class="p">.</span><span class="nx">message</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div>
+<p>A little bit more code but it is again fairly simple. The key point in that directive is the <code>validateInput</code> method. It processes the input typed by the user and decides if it is a valid or not. It also chooses and displays the proper error message.</p>
+
+<h2>Show me the unit ...</h2>
+
+<p>Now it gets interesting. How we are going to unit test our application? The first thing and maybe the most important one is to divide the application into small isolated modules so we form units. In the example above the two directives may be considered as units. The header does not contain custom logic and basically there is nothing to test there. Yes, we have a <em>click</em> handler, but we do not have to write tests for that. That is part of the framework and we expect that the guys from Google tested it already. A lot more interesting is the registration form. We want to make sure that whatever the user types into the fields our directive will react properly. </p>
+
+<p>We need to extract <code>registerForm</code> from the other code. If we look closer we will see that the directives in AngularJS are nothing but functions. So we may change our code to:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// a new file register-form.js</span>
+<span class="nx">registerFormDirective</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">{</span>
+    <span class="nx">restrict</span><span class="o">:</span> <span class="s1">&#39;E&#39;</span><span class="p">,</span>
+    <span class="p">...</span>
+    <span class="p">...</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c1">// main file</span>
+<span class="o">&lt;</span><span class="nx">script</span> <span class="nx">src</span><span class="o">=</span><span class="s2">&quot;./js/register-form.js&quot;</span><span class="o">&gt;&lt;</span><span class="err">/script&gt;</span>
+<span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+<span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;app&#39;</span><span class="p">,</span> <span class="p">[])</span>
+<span class="p">.</span><span class="nx">controller</span><span class="p">(</span><span class="s1">&#39;Controller&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$scope</span><span class="p">)</span> <span class="p">{})</span>
+<span class="p">.</span><span class="nx">directive</span><span class="p">(</span><span class="s1">&#39;registerForm&#39;</span><span class="p">,</span> <span class="nx">registerFormDirective</span><span class="p">)</span>
+<span class="p">...</span>
+<span class="o">&lt;</span><span class="err">/script&gt;</span>
+</code></pre></div>
+<p>We moved the definition to the global scope and later use it in the main file. (it&#39;s really a good practice to use the global scope but let&#39;s keep it simple)</p>
+
+<p>Now we have a simple JavaScript function that may be called from anywhere most importantly could be tested. </p>
+
+<h2>Writing the test</h2>
+
+<p>There are few popular approaches for testing client-side JavaScript. </p>
+
+<ul>
+<li>Of course, the trivial one is to write the test and run it into the browser. This makes sense if you work in a small team and you all agree to run the tests before deploying. However, that&#39;s not a good option if your company is a big one. You can not trust yourself or your colleagues for dealing with one additional step before shipping the code. This process should be automated. Or in other words it should be integrated into the deployment setup.</li>
+<li>There are headless browsers like <a href="http://phantomjs.org">PhantomJS</a> or <a href="https://code.google.com/p/selenium/">Selenium</a> that programmatically visit our pages and interact with them. If we take this way we will avoid the manual running of the tests. The problem is that we are not running unit tests, we are doing integration testing. Our <code>registerForm</code> directive may be unit tested only if we create a separate page for it. This definitely does not scale. So, this option is good for integration but not unit testing.</li>
+<li>The last option, and the one that we are going to use, solves both of the problems above - automation and unit testing. We are not going to visit pages. We will simply pull the unit, create an instance of it and start operating with the UI. No headless browser involved. We will use Node.js. Our <code>registerForm</code> is now a simple JavaScript function. So it should be possible to execute it in node.</li>
+</ul>
+
+<p>Not all of them, but most of the popular client-side frameworks nowadays use the DOM. That&#39;s a problem because in Node.js we do not have a DOM tree. Thankfully there is a module that brings a very good simulation of it. It&#39;s called <a href="https://www.npmjs.org/package/jsdom">jsdom</a>. Let&#39;s create a <em>package.json</em> and put the module there:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="p">{</span>
+  <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;version&quot;</span><span class="o">:</span> <span class="s2">&quot;0.0.0&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;dependencies&quot;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s2">&quot;mocha&quot;</span><span class="o">:</span> <span class="s2">&quot;2.0.1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;jsdom&quot;</span><span class="o">:</span> <span class="s2">&quot;1.1.0&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Along with jsdom we added <a href="http://mochajs.org">Mocha</a> - a popular JavaScript test framework available for Node.js and the browser. We hit <code>npm install</code> and we are ready to write our test. The basic skeleton of our spec file is:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">assert</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;assert&#39;</span><span class="p">);</span>
+
+<span class="nx">suite</span><span class="p">(</span><span class="s1">&#39;Register form&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">test</span><span class="p">(</span><span class="s1">&#39;validations&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">timeout</span><span class="p">(</span><span class="mi">5000</span><span class="p">);</span>
+      <span class="p">...</span>
+      <span class="nx">done</span><span class="p">();</span>
+    <span class="p">});</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><code>assert</code> is a Node.js native module specifically made for unit testing. <code>suite</code> and <code>test</code> are here because we are going to use the <code>tdd</code> interface of Mocha. If our test succeed we should call the <code>done</code> method. We increase the maximum timeout to five seconds so we give a chance to AngularJS doing its job.</p>
+
+<p>The main challenge writing the test is to create a proper environment for AngularJS. So it functions like it is in the browser. Here is how to do this using <code>jsdom</code>:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">jsdom</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;jsdom&quot;</span><span class="p">);</span>
+<span class="nx">jsdom</span><span class="p">.</span><span class="nx">env</span><span class="p">({</span>
+  <span class="nx">html</span><span class="o">:</span> <span class="s1">&#39;&lt;html ng-app=&quot;app&quot;&gt;&lt;body&gt;&lt;div ng-controller=&quot;Controller&quot;&gt;&lt;register-form&gt;&lt;/register-form&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;&#39;</span><span class="p">,</span>
+  <span class="nx">scripts</span><span class="o">:</span> <span class="p">[</span>
+    <span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">&#39;/../vendor/angular.min.js&#39;</span><span class="p">,</span>
+    <span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">&#39;/../js/register-form.js&#39;</span>
+  <span class="p">],</span>
+  <span class="nx">features</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">FetchExternalResources</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;script&quot;</span><span class="p">],</span>
+    <span class="nx">ProcessExternalResources</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;script&quot;</span><span class="p">],</span>
+  <span class="p">},</span>
+  <span class="nx">done</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">errors</span><span class="p">,</span> <span class="nb">window</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>We <code>require</code> the module and call the <code>env</code> method that effectively creates a virtual page. The markup of that page is defined in the <code>html</code> property. The code there is valid for bootstrapping AngularJS application and <em>showing</em> our register form. Of course we need including AngularJS and <code>register-form.js</code> files which is done in the <code>scripts</code> property. At the end we are telling to <code>jsdom</code> that we want our script tags to be fetched and processed. The <code>done</code> property accepts callback which is the entry point of our test.</p>
+
+<p>As we can see from the example above we have an access to a <code>window</code> object. That is the same global <code>window</code> object that we have in the browser. In fact <code>jsdom</code> is a JavaScript implementation of the WHATWG DOM and HTML standards. So there are tons of stuff that we can do from here. We can select elements from the generated DOM by using <code>window.document.querySelector</code> or trigger events. That&#39;s all we need to test the functionality in our directive. </p>
+
+<p>We may start by defining a few helper functions that will make our life easier:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">$</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">selector</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nb">window</span><span class="p">.</span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="nx">selector</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="nx">trigger</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">el</span><span class="p">,</span> <span class="nx">ev</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">e</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nb">document</span><span class="p">.</span><span class="nx">createEvent</span><span class="p">(</span><span class="s1">&#39;UIEvents&#39;</span><span class="p">);</span>
+  <span class="nx">e</span><span class="p">.</span><span class="nx">initEvent</span><span class="p">(</span><span class="nx">ev</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+  <span class="nx">el</span><span class="p">.</span><span class="nx">dispatchEvent</span><span class="p">(</span><span class="nx">e</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Then add the basic AngularJS code that will show our directive on the <em>screen</em>:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nb">window</span>
+  <span class="p">.</span><span class="nx">angular</span>
+  <span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;app&#39;</span><span class="p">,</span> <span class="p">[])</span>
+  <span class="p">.</span><span class="nx">controller</span><span class="p">(</span><span class="s1">&#39;Controller&#39;</span><span class="p">,</span> <span class="nx">Controller</span><span class="p">)</span>
+  <span class="p">.</span><span class="nx">directive</span><span class="p">(</span><span class="s1">&#39;registerForm&#39;</span><span class="p">,</span> <span class="nb">window</span><span class="p">.</span><span class="nx">registerFormDirective</span><span class="p">);</span>
+</code></pre></div>
+<p>And of course the body of the controller that performs the actual testing:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">Controller</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$scope</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">runTests</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="kd">var</span> <span class="nx">register</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#register-button&#39;</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">message</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#message&#39;</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">username</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#username&#39;</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">password</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#password&#39;</span><span class="p">);</span>
+
+    <span class="nx">register</span><span class="p">.</span><span class="nx">click</span><span class="p">();</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">innerHTML</span><span class="p">,</span> <span class="s1">&#39;Missing username.&#39;</span><span class="p">);</span>
+
+    <span class="nx">username</span><span class="p">.</span><span class="nx">value</span> <span class="o">=</span> <span class="s1">&#39;test&#39;</span><span class="p">;</span>
+    <span class="nx">trigger</span><span class="p">(</span><span class="nx">username</span><span class="p">,</span> <span class="s1">&#39;change&#39;</span><span class="p">);</span>
+    <span class="nx">register</span><span class="p">.</span><span class="nx">click</span><span class="p">();</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">innerHTML</span><span class="p">,</span> <span class="s1">&#39;Missing password.&#39;</span><span class="p">);</span>
+
+    <span class="nx">password</span><span class="p">.</span><span class="nx">value</span> <span class="o">=</span> <span class="s1">&#39;test&#39;</span><span class="p">;</span>
+    <span class="nx">trigger</span><span class="p">(</span><span class="nx">password</span><span class="p">,</span> <span class="s1">&#39;change&#39;</span><span class="p">);</span>
+    <span class="nx">register</span><span class="p">.</span><span class="nx">click</span><span class="p">();</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">innerHTML</span><span class="p">,</span> <span class="s1">&#39;Too short username.&#39;</span><span class="p">);</span>
+
+    <span class="nx">username</span><span class="p">.</span><span class="nx">value</span> <span class="o">=</span> <span class="s1">&#39;testtesttesttest&#39;</span><span class="p">;</span>
+    <span class="nx">trigger</span><span class="p">(</span><span class="nx">username</span><span class="p">,</span> <span class="s1">&#39;change&#39;</span><span class="p">);</span>
+    <span class="nx">register</span><span class="p">.</span><span class="nx">click</span><span class="p">();</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">innerHTML</span><span class="p">,</span> <span class="s1">&#39;Too short password.&#39;</span><span class="p">);</span>
+
+    <span class="nx">password</span><span class="p">.</span><span class="nx">value</span> <span class="o">=</span> <span class="s1">&#39;testtesttesttest&#39;</span><span class="p">;</span>
+    <span class="nx">trigger</span><span class="p">(</span><span class="nx">password</span><span class="p">,</span> <span class="s1">&#39;change&#39;</span><span class="p">);</span>
+    <span class="nx">register</span><span class="p">.</span><span class="nx">click</span><span class="p">();</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">innerHTML</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">);</span>
+
+    <span class="nx">done</span><span class="p">();</span>
+
+  <span class="p">};</span>
+  <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">runTests</span><span class="p">,</span> <span class="mi">1000</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Because there is some processing we need that little hack with the <code>setTimeout</code> call. We just make sure that the DOM and AngularJS bindings are fully initialized before selecting elements.</p>
+
+<p>Another interesting rule that we have to follow is triggering <code>change</code> event every time when we type something into the text boxes. That&#39;s because otherwise AngularJS does not have an idea that we changed the value. This is still valid if we have logic attached to <em>blur</em>, <em>focus</em> or <em>click</em> events.</p>
+
+<h3>A quick note</h3>
+
+<p>Not to be pedantic but we have to mention that the test written above is more like functional test and not unit test. The truth is that the unit test operates only on one particular method of a class and it is indeed testing only one specific functionality. By testing the register form directive we are doing more then that. </p>
+
+<h2>Final words</h2>
+
+<p>Writing of tests is not always easy. However, it should be there and it should be automatic. Sometimes using tools like Selenium does not make possible testing the atoms of our system. Sometimes it is difficult to setup such tools or integrate them. <code>jsdom</code> is one of the nice workarounds and it definitely works for <a href="http://trialreach.com/">us</a>.</p>
+
+<h4>Just the whole test</h4>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">assert</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;assert&#39;</span><span class="p">);</span>
+
+<span class="nx">suite</span><span class="p">(</span><span class="s1">&#39;Register form&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+  <span class="nx">test</span><span class="p">(</span><span class="s1">&#39;validations&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">timeout</span><span class="p">(</span><span class="mi">5000</span><span class="p">);</span>
+
+    <span class="kd">var</span> <span class="nx">jsdom</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;jsdom&quot;</span><span class="p">);</span>
+    <span class="nx">jsdom</span><span class="p">.</span><span class="nx">env</span><span class="p">({</span>
+      <span class="nx">html</span><span class="o">:</span> <span class="s1">&#39;&lt;html ng-app=&quot;app&quot;&gt;&lt;body&gt;&lt;div ng-controller=&quot;Controller&quot;&gt;&lt;register-form&gt;&lt;/register-form&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;&#39;</span><span class="p">,</span>
+      <span class="nx">scripts</span><span class="o">:</span> <span class="p">[</span>
+        <span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">&#39;/../vendor/angular.min.js&#39;</span><span class="p">,</span>
+        <span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">&#39;/../js/register-form.js&#39;</span>
+      <span class="p">],</span>
+      <span class="nx">features</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">FetchExternalResources</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;script&quot;</span><span class="p">],</span>
+        <span class="nx">ProcessExternalResources</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;script&quot;</span><span class="p">],</span>
+      <span class="p">},</span>
+      <span class="nx">done</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">errors</span><span class="p">,</span> <span class="nb">window</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">errors</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Errors&#39;</span><span class="p">,</span> <span class="nx">errors</span><span class="p">);</span>
+
+        <span class="kd">var</span> <span class="nx">$</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">selector</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="nb">window</span><span class="p">.</span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="nx">selector</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="kd">var</span> <span class="nx">trigger</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">el</span><span class="p">,</span> <span class="nx">ev</span><span class="p">)</span> <span class="p">{</span>
+          <span class="kd">var</span> <span class="nx">e</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nb">document</span><span class="p">.</span><span class="nx">createEvent</span><span class="p">(</span><span class="s1">&#39;UIEvents&#39;</span><span class="p">);</span>
+          <span class="nx">e</span><span class="p">.</span><span class="nx">initEvent</span><span class="p">(</span><span class="nx">ev</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+          <span class="nx">el</span><span class="p">.</span><span class="nx">dispatchEvent</span><span class="p">(</span><span class="nx">e</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="kd">var</span> <span class="nx">Controller</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$scope</span><span class="p">)</span> <span class="p">{</span>
+          <span class="kd">var</span> <span class="nx">runTests</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+            <span class="kd">var</span> <span class="nx">register</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#register-button&#39;</span><span class="p">);</span>
+            <span class="kd">var</span> <span class="nx">message</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#message&#39;</span><span class="p">);</span>
+            <span class="kd">var</span> <span class="nx">username</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#username&#39;</span><span class="p">);</span>
+            <span class="kd">var</span> <span class="nx">password</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#password&#39;</span><span class="p">);</span>
+
+            <span class="nx">register</span><span class="p">.</span><span class="nx">click</span><span class="p">();</span>
+            <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">innerHTML</span><span class="p">,</span> <span class="s1">&#39;Missing username.&#39;</span><span class="p">);</span>
+
+            <span class="nx">username</span><span class="p">.</span><span class="nx">value</span> <span class="o">=</span> <span class="s1">&#39;test&#39;</span><span class="p">;</span>
+            <span class="nx">trigger</span><span class="p">(</span><span class="nx">username</span><span class="p">,</span> <span class="s1">&#39;change&#39;</span><span class="p">);</span>
+            <span class="nx">register</span><span class="p">.</span><span class="nx">click</span><span class="p">();</span>
+            <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">innerHTML</span><span class="p">,</span> <span class="s1">&#39;Missing password.&#39;</span><span class="p">);</span>
+
+            <span class="nx">password</span><span class="p">.</span><span class="nx">value</span> <span class="o">=</span> <span class="s1">&#39;test&#39;</span><span class="p">;</span>
+            <span class="nx">trigger</span><span class="p">(</span><span class="nx">password</span><span class="p">,</span> <span class="s1">&#39;change&#39;</span><span class="p">);</span>
+            <span class="nx">register</span><span class="p">.</span><span class="nx">click</span><span class="p">();</span>
+            <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">innerHTML</span><span class="p">,</span> <span class="s1">&#39;Too short username.&#39;</span><span class="p">);</span>
+
+            <span class="nx">username</span><span class="p">.</span><span class="nx">value</span> <span class="o">=</span> <span class="s1">&#39;testtesttesttest&#39;</span><span class="p">;</span>
+            <span class="nx">trigger</span><span class="p">(</span><span class="nx">username</span><span class="p">,</span> <span class="s1">&#39;change&#39;</span><span class="p">);</span>
+            <span class="nx">register</span><span class="p">.</span><span class="nx">click</span><span class="p">();</span>
+            <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">innerHTML</span><span class="p">,</span> <span class="s1">&#39;Too short password.&#39;</span><span class="p">);</span>
+
+            <span class="nx">password</span><span class="p">.</span><span class="nx">value</span> <span class="o">=</span> <span class="s1">&#39;testtesttesttest&#39;</span><span class="p">;</span>
+            <span class="nx">trigger</span><span class="p">(</span><span class="nx">password</span><span class="p">,</span> <span class="s1">&#39;change&#39;</span><span class="p">);</span>
+            <span class="nx">register</span><span class="p">.</span><span class="nx">click</span><span class="p">();</span>
+            <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">innerHTML</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">);</span>
+
+            <span class="nx">done</span><span class="p">();</span>
+
+          <span class="p">};</span>
+          <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">runTests</span><span class="p">,</span> <span class="mi">1000</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="nb">window</span>
+          <span class="p">.</span><span class="nx">angular</span>
+          <span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;app&#39;</span><span class="p">,</span> <span class="p">[])</span>
+          <span class="p">.</span><span class="nx">controller</span><span class="p">(</span><span class="s1">&#39;Controller&#39;</span><span class="p">,</span> <span class="nx">Controller</span><span class="p">)</span>
+          <span class="p">.</span><span class="nx">directive</span><span class="p">(</span><span class="s1">&#39;registerForm&#39;</span><span class="p">,</span> <span class="nb">window</span><span class="p">.</span><span class="nx">registerFormDirective</span><span class="p">);</span>
+
+      <span class="p">}</span>
+    <span class="p">});</span>
+
+  <span class="p">});</span>
+
+<span class="p">});</span>
+</code></pre></div>
+<p>This article was originally published at <a href="http://krasimirtsonev.com/blog/article/unit-test-your-client-side-javascript-jsdom-nodejs">krasimirtsonev.com</a>.</p>
+
+</div>
+
+<div>
+  <ul class="share-buttons">
+    <li>
+      <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fblog.webbox.io&t=" target="_blank" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(document.URL) + '&t=' + encodeURIComponent(document.URL)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-facebook  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="https://twitter.com/intent/tweet?source=http%3A%2F%2Fblog.webbox.io&text=: http%3A%2F%2Fblog.webbox.io&via=webboxio" target="_blank" title="Tweet" onclick="window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(document.title) + ': '  + encodeURIComponent(document.URL)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-twitter  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="https://getpocket.com/save?url=http%3A%2F%2Fblog.webbox.io&title=" target="_blank" title="Add to Pocket" onclick="window.open('https://getpocket.com/save?url=' + encodeURIComponent(document.URL) + '&title=' +  encodeURIComponent(document.title)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-chevron-circle-down  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="http://www.reddit.com/submit?url=http%3A%2F%2Fblog.webbox.io&title=" target="_blank" title="Submit to Reddit" onclick="window.open('http://www.reddit.com/submit?url=' + encodeURIComponent(document.URL) + '&title=' +  encodeURIComponent(document.title)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-reddit  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+    <li>
+      <a href="http://wordpress.com/press-this.php?u=http%3A%2F%2Fblog.webbox.io&t=&s=" target="_blank" title="Publish on WordPress" onclick="window.open('http://wordpress.com/press-this.php?u=' + encodeURIComponent(document.URL) + '&t=' +  encodeURIComponent(document.title)); return false;">
+        <span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-wordpress  fa-stack-1x fa-inverse"></i></span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+
+
+<div class="related">
+    <h2>Related Posts</h2>
+    <ul class="related-posts">
+    
+    <li>
+        <h3>
+            <a href="/2015/03/06/ruby-argument-references/">Ruby argument references<br/>
+                <small>06 March 2015</small>
+                <small>&mdash; by Uğur Özyılmazel</small>
+            </a>
+        </h3>
+      </li>
+    
+    <li>
+        <h3>
+            <a href="/2014/10/03/how-to-fix-shellshock-on-ubuntu/">How to fix Shellshock on Ubuntu<br/>
+                <small>03 October 2014</small>
+                <small>&mdash; by Uğur Özyılmazel</small>
+            </a>
+        </h3>
+      </li>
+    
+    <li>
+        <h3>
+            <a href="/2014/07/31/rack-protection-tips/">Rack Protection tips<br/>
+                <small>31 July 2014</small>
+                <small>&mdash; by Uğur Özyılmazel</small>
+            </a>
+        </h3>
+      </li>
+    
+  </ul>
+</div>
+
+
+<div>
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+    */
+    /*
+    var disqus_config = function () {
+    this.page.url = PAGE_URL; // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+
+    s.src = '//webboxioblog.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+
+
+    </div>
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-6463685-30', 'auto');
+      ga('send', 'pageview');
+    </script>
+    <script id="dsq-count-scr" src="//webboxioblog.disqus.com/count.js" async></script>
+    
+  </body>
+</html>

@@ -16,7 +16,7 @@ abstract: |
 
 We’ve announced this event on Tuesday (very short notice). There were approximately 20 people.
 
-![Girisim Fabrikasi 2]({{ site.baseurl }}{% post_image girisimfab/girisimfab2.jpg %})
+![Girisim Fabrikasi 2]({{ site.baseurl }}{% post_image girisimfab/girisimfab2.png %})
 
 This was a small introduction to Modern Web Technologies. How to build quick landing
 page without spending too much effort and time. How to choose minimal required
